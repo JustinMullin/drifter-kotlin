@@ -1,0 +1,30 @@
+version = "0.1-SNAPSHOT"
+group = "xyz.jmullin.drifter"
+
+buildscript {
+    ext.kotlin_version = '1.0.3'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'kotlin'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "com.badlogicgames.gdx:gdx:latest.integration"
+    compile "com.badlogicgames.gdx:gdx-box2d:latest.integration"
+    testCompile 'junit:junit:4.11'
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "2.7"
+}
