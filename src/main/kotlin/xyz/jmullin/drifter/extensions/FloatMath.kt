@@ -15,6 +15,8 @@ package xyz.jmullin.drifter.extensions
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+val Pi: Float = Math.PI.toFloat()
+val E: Float = Math.E.toFloat()
 
 fun Float.sin(): Float = FloatMath.sin(this)
 fun Float.cos(): Float = FloatMath.cos(this)
@@ -53,9 +55,6 @@ fun Float.scalb(scaleFactor: Int): Float = Math.scalb(this, scaleFactor)
 fun Float.clamp(min: Float, max: Float): Float = Math.max(min, Math.min(this, max))
 
 object FloatMath {
-    val PI: Float = Math.PI.toFloat()
-    val E: Float = Math.E.toFloat()
-
     fun abs(value: Float): Float = Math.abs(value)
     fun min(a: Float, b: Float): Float = Math.min(a, b)
     fun max(a: Float, b: Float): Float = Math.max(a, b)

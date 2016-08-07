@@ -13,7 +13,7 @@ import xyz.jmullin.drifter.extensions.*
  * 3-dimensional entity, contains scaffolding on top of Entity for tracking 3d position.
  * An Entity3D can be added/removed from a Layer3D, which will take care of calling update/render periodically.
  */
-class Entity3D : EntityContainer3D, Entity() {
+open class Entity3D : EntityContainer3D, Entity() {
     // Implicits for local context
     fun self() = this
     override fun layer() = parent?.layer()
@@ -74,7 +74,7 @@ class Entity3D : EntityContainer3D, Entity() {
      * @param batch Active ModelBatch to use in rendering.
      * @param environment Environment to render within.
      */
-    fun render(batch: ModelBatch, environment: Environment) {
+    open fun render(batch: ModelBatch, environment: Environment) {
         renderChildren(batch, environment)
     }
 

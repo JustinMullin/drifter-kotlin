@@ -10,7 +10,7 @@ import xyz.jmullin.drifter.extensions.V2
  * 2-dimensional entity, contains scaffolding on top of Entity for tracking 2d position and orientation.
  * An Entity2D can be added/removed from a Layer2D, which will take care of calling update/render periodically.
  */
-class Entity2D : EntityContainer2D, Entity() {
+open class Entity2D : EntityContainer2D, Entity() {
     // Implicits for local context
     fun self() = this
     override fun layer() = parent?.layer()
@@ -57,7 +57,7 @@ class Entity2D : EntityContainer2D, Entity() {
      *
      * @param batch Active SpriteBatch to use in rendering.
      */
-    fun render(batch: SpriteBatch) {
+    open fun render(batch: SpriteBatch) {
         renderChildren(batch)
     }
 

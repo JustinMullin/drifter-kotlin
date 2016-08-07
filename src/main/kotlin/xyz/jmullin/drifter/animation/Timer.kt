@@ -8,14 +8,14 @@ import xyz.jmullin.drifter.entity.Entity
  * @param duration Time in seconds this trigger should wait before executing.
  * @param done Block to execute when finished.
  */
-class Timer(var duration: Float, done: -> Unit) extends Trigger(done) {
-  var elapsed = 0f
-  override fun running: Boolean = elapsed < duration
+open class Timer(var duration: Float, done: () -> Unit) : Trigger(done) {
+    var elapsed = 0f
+    override val running: Boolean get() = elapsed < duration
 
-  override fun update(implicit delta: Float, e: Entity) {
-    elapsed += delta
-    if(elapsed >= duration) {
-      execute()
+    override fun update(delta: Float, e: Entity) {
+        elapsed += delta
+        if(elapsed >= duration) {
+            execute()
+        }
     }
-  }
 }
