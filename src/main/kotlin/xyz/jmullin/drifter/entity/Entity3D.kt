@@ -7,12 +7,13 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.math.collision.Ray
-import xyz.jmullin.drifter.extensions.*
+import xyz.jmullin.drifter.extensions.V3
 
 /**
  * 3-dimensional entity, contains scaffolding on top of Entity for tracking 3d position.
  * An Entity3D can be added/removed from a Layer3D, which will take care of calling update/render periodically.
  */
+@Suppress("UNUSED_PARAMETER")
 open class Entity3D : EntityContainer3D, Entity() {
     // Implicits for local context
     fun self() = this

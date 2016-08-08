@@ -3,13 +3,13 @@ package xyz.jmullin.drifter.entity
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import xyz.jmullin.drifter.extensions.*
 import xyz.jmullin.drifter.extensions.V2
 
 /**
  * 2-dimensional entity, contains scaffolding on top of Entity for tracking 2d position and orientation.
  * An Entity2D can be added/removed from a Layer2D, which will take care of calling update/render periodically.
  */
+@Suppress("UNUSED_PARAMETER")
 open class Entity2D : EntityContainer2D, Entity() {
     // Implicits for local context
     fun self() = this
@@ -50,7 +50,7 @@ open class Entity2D : EntityContainer2D, Entity() {
      *
      * @param container The new parent container.
      */
-    fun create(container: EntityContainer2D) {}
+    open fun create(container: EntityContainer2D) {}
 
     /**
      * Called by the parent container on each frame to render this entity.
@@ -66,7 +66,7 @@ open class Entity2D : EntityContainer2D, Entity() {
      *
      * @param delta Time in seconds elapsed since the last update tick.
      */
-    override fun update(delta: Float) {
+    open override fun update(delta: Float) {
         updateChildren(delta)
 
         super.update(delta)
@@ -102,7 +102,7 @@ open class Entity2D : EntityContainer2D, Entity() {
      * @param v The point to check.
      * @return True if the point is contained in this entity
      */
-    fun containsPoint(v: Vector2): Boolean = bounds.contains(v) || children.find { it.containsPoint(v) } != null
+    open fun containsPoint(v: Vector2): Boolean = bounds.contains(v) || children.find { it.containsPoint(v) } != null
 
     /**
      * Unprojects a screen coordinate into the world space of the parent layer.

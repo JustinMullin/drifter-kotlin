@@ -1,6 +1,7 @@
 package xyz.jmullin.drifter.animation
 
-import xyz.jmullin.drifter.extensions.*
+import xyz.jmullin.drifter.extensions.Pi
+import xyz.jmullin.drifter.extensions.sin
 
 /**
  * Defines an easing function for interpolation between 0-1.

@@ -1,6 +1,7 @@
 package xyz.jmullin.drifter.animation
 
-import xyz.jmullin.drifter.entity.*
+import xyz.jmullin.drifter.entity.Entity
+import xyz.jmullin.drifter.entity.Hook
 
 /**
  * A trigger abstracts an action to take place at some future time.  To start the trigger,

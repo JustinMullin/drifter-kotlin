@@ -1,7 +1,6 @@
 package xyz.jmullin.drifter.extensions
 
 import com.badlogic.gdx.Gdx
-import xyz.jmullin.drifter.extensions.*
 
 /**
  * Short aliases and convenience methods for interacting with Gdx globals.

@@ -1,15 +1,21 @@
-package xyz.jmullin.drifter
+package xyz.jmullin.drifter.application
 
-import com.badlogic.gdx.*
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20.*
-import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider
+import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider
 import com.badlogic.gdx.math.Vector2
-import xyz.jmullin.drifter.extensions.*
 import xyz.jmullin.drifter.entity.Layer
 import xyz.jmullin.drifter.entity.Layer2D
 import xyz.jmullin.drifter.entity.Layer3D
+import xyz.jmullin.drifter.extensions.V2
+import xyz.jmullin.drifter.extensions.gameH
+import xyz.jmullin.drifter.extensions.gameW
+import xyz.jmullin.drifter.rendering.ShaderSet
+import xyz.jmullin.drifter.rendering.Shaders
 
 /**
  * Screen implementation for use with Drifter, facilitates creation and management of layers for
@@ -17,7 +23,7 @@ import xyz.jmullin.drifter.entity.Layer3D
  *
  * @param background Background color to clear to on each frame.
  */
-class DrifterScreen(val background: Color=Color.BLACK) : DrifterInput, Screen {
+open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Screen {
     /**
      * Layers attached to this screen.
      */
@@ -31,10 +37,10 @@ class DrifterScreen(val background: Color=Color.BLACK) : DrifterInput, Screen {
      * @param shader If specified, the default shader for rendering this layer.
      * @return The created Layer.
      */
-    fun newLayer2D(size: Vector2, autoCenter: Boolean=false, shader: ShaderSet=Shaders.default) = {
+    fun newLayer2D(size: Vector2, autoCenter: Boolean=false, shader: ShaderSet = Shaders.default): Layer2D {
         val layer = Layer2D(size, autoCenter, shader)
-        layers + layer
-        layer
+        layers += layer
+        return layer
     }
 
     /**
@@ -43,10 +49,10 @@ class DrifterScreen(val background: Color=Color.BLACK) : DrifterInput, Screen {
      * @param size Size of the new layer.
      * @return The created Layer.
      */
-    fun newLayer3D(size: Vector2, fov: Float = 67f, shaderProvider: ShaderProvider = DefaultShaderProvider()) = {
+    fun newLayer3D(size: Vector2, fov: Float = 67f, shaderProvider: ShaderProvider = DefaultShaderProvider()): Layer3D {
         val layer = Layer3D(size, fov, shaderProvider)
-        layers + layer
-        layer
+        layers += layer
+        return layer
     }
 
     /**

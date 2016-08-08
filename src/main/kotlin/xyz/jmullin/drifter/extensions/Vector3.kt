@@ -15,6 +15,10 @@ fun V3(v: Vector2, z: Float) = Vector3(v.x, v.y, z)
 fun V3(x: Float, v: Vector2) = Vector3(x, v.x, v.y)
 fun V3(x: Float, y: Float, z: Float) = Vector3(x, y, z)
 
+val Vector3.xI: Int get() = x.toInt()
+val Vector3.yI: Int get() = y.toInt()
+val Vector3.zI: Int get() = z.toInt()
+
 operator fun Vector3.plus(o: Vector3) = cpy().add(o)
 operator fun Vector3.plus(n: Float) = cpy().add(n, n, n)
 operator fun Vector3.minus(o: Vector3) = cpy().sub(o)
@@ -25,6 +29,7 @@ operator fun Vector3.times(m: Matrix3) = cpy().mul(m)
 operator fun Vector3.times(m: Matrix4) = cpy().mul(m)
 operator fun Vector3.div(o: Vector3) = cpy().scl(1f/o.x, 1f/o.y, 1f/o.z)
 operator fun Vector3.div(n: Float) = cpy().scl(1f/n, 1f/n, 1f/n)
+operator fun Vector3.unaryMinus() = inverse()
 
 fun Vector3.abs() = V3(mAbs(x), mAbs(y), mAbs(z))
 fun Vector3.inverse() = (this * -1f).fixZeroes()
@@ -39,6 +44,8 @@ fun Vector3.manhattanTo(b: Vector3) = {
 }
 
 // SWIZZLING
+
+fun Vector3.list() = listOf(x, y, z)
 
 val Vector3.xxx: Vector3 get() = V3(x, x, x)
 val Vector3.xxy: Vector3 get() = V3(x, x, y)

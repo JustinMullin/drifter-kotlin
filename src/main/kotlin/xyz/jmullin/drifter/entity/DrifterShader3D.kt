@@ -19,7 +19,7 @@ import com.badlogic.gdx.math.Matrix3
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
-import xyz.jmullin.drifter.extensions.*
+import xyz.jmullin.drifter.extensions.V3
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader.Setter as SetterGDX
 
 /**
@@ -101,19 +101,19 @@ class DrifterShader3D(var renderable: Renderable) : BaseShader() {
         val normalMatrix = setter<Matrix3>("normalMatrix", { s: BaseShader, r: Renderable, a: Attributes ->
             Matrix3().set(r.worldTransform).inv().transpose() }, false)
 
-        val shininess = setter<Float>("shininess", { s: BaseShader, r: Renderable, a: Attributes ->
+        val shininess = setter("shininess", { s: BaseShader, r: Renderable, a: Attributes ->
             a.get(FloatAttribute.Shininess).let { a -> when(a) { is FloatAttribute -> a.value; else -> 12f} } }, false)
 
         val diffuseColor = setter<Color>("diffuseColor", { s: BaseShader, r: Renderable, a: Attributes ->
             a.get(ColorAttribute.Diffuse).let { a -> when(a) { is ColorAttribute -> a.color; else -> Color.WHITE } } }, false)
 
-        val diffuseTexture = setter<Int>("diffuseTexture", { s: BaseShader, r: Renderable, a: Attributes ->
+        val diffuseTexture = setter("diffuseTexture", { s: BaseShader, r: Renderable, a: Attributes ->
             s.context.textureBinder.bind(a.get(TextureAttribute.Diffuse).let { a -> when(a) { is TextureAttribute -> a.textureDescription; else -> null } }) }, false)
 
         val specularColor = setter<Color>("specularColor", { s: BaseShader, r: Renderable, a: Attributes ->
             a.get(ColorAttribute.Specular).let { a -> when(a) { is ColorAttribute -> a.color; else -> Color.WHITE } } }, false)
 
-        val specularTexture = setter<Int>("specularTexture", { s: BaseShader, r: Renderable, a: Attributes ->
+        val specularTexture = setter("specularTexture", { s: BaseShader, r: Renderable, a: Attributes ->
             s.context.textureBinder.bind(a.get(TextureAttribute.Specular).let { a -> when(a) { is TextureAttribute -> a.textureDescription; else -> null } }) }, false)
 
         val emissiveColor = setter<Color>("emissiveColor", { s: BaseShader, r: Renderable, a: Attributes ->
@@ -122,10 +122,10 @@ class DrifterShader3D(var renderable: Renderable) : BaseShader() {
         val reflectionColor = setter<Color>("reflectionColor", { s: BaseShader, r: Renderable, a: Attributes ->
             a.get(ColorAttribute.Reflection).let { a -> when(a) { is ColorAttribute -> a.color; else -> Color.WHITE } } }, false)
 
-        val normalTexture = setter<Int>("normalTexture", { s: BaseShader, r: Renderable, a: Attributes ->
+        val normalTexture = setter("normalTexture", { s: BaseShader, r: Renderable, a: Attributes ->
             s.context.textureBinder.bind(a.get(TextureAttribute.Normal).let { a -> when(a) { is TextureAttribute -> a.textureDescription; else -> null } }) }, false)
 
-        val environmentCubemap = setter<Int>("environmentCubemap", { s: BaseShader, r: Renderable, a: Attributes ->
+        val environmentCubemap = setter("environmentCubemap", { s: BaseShader, r: Renderable, a: Attributes ->
             s.context.textureBinder.bind(a.get(CubemapAttribute.EnvironmentMap).let { a -> when(a) { is CubemapAttribute -> a.textureDescription; else -> null } }) }, false)
 
         abstract class Setter(val uniformName: String, val global: Boolean) : SetterGDX {
@@ -147,8 +147,12 @@ class DrifterShader3D(var renderable: Renderable) : BaseShader() {
                     is Vector2 -> shader.set(inputID, value)
                     is Vector3 -> shader.set(inputID, value)
                     is Pair<*, *> -> {
-                        val v = value as Pair<Vector3, Float>
-                        shader.set(inputID, v.first.x, v.first.y, v.first.z, v.second)
+                        @Suppress("USELESS_CAST")
+                        if(value.first is Vector3 && value.second is Float) {
+                            val v = value.first as Vector3
+                            val a = value.second as Float
+                            shader.set(inputID, v.x, v.y, v.z, a)
+                        }
                     }
                     is Matrix3 -> shader.set(inputID, value)
                     is Matrix4 -> shader.set(inputID, value)

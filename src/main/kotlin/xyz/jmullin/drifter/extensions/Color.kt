@@ -20,4 +20,4 @@ operator fun Color.times(n: Float) = cpy().mul(n, n, n, 1f)
 operator fun Color.div(o: Color) = cpy().mul(1f/o.r, 1f/o.g, 1f/o.b, 1f)
 operator fun Color.div(n: Float) = cpy().mul(1f/n, 1f/n, 1f/n, 1f)
 
-fun Color.alpha(a: Float) = cpy().set(r, g, b, 1f)
+fun Color.alpha(a: Float) = cpy().set(r, g, b, a)

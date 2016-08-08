@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.reflect.ClassReflection
 import com.badlogic.gdx.utils.reflect.Field
-import xyz.jmullin.drifter.animation.Animation
 
 /**
  * Used for loading and storing an assets library.
@@ -31,7 +30,7 @@ import xyz.jmullin.drifter.animation.Animation
  *
  * @param atlasName Optional filename of the TextureAtlas to load sprites from.
  */
-class DrifterAssets(atlasName: String? = null) {
+open class DrifterAssets(atlasName: String? = null) {
     val manager = AssetManager()
 
     var primaryAtlas: TextureAtlas? = null

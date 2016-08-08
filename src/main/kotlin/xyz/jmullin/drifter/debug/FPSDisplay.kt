@@ -4,9 +4,9 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
-import xyz.jmullin.drifter.Draw
-import xyz.jmullin.drifter.extensions.*
+import xyz.jmullin.drifter.rendering.Draw
 import xyz.jmullin.drifter.entity.Entity2D
+import xyz.jmullin.drifter.extensions.*
 
 /**
  * Simple FPS debug display.

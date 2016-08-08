@@ -1,14 +1,13 @@
-package xyz.jmullin.drifter
+package xyz.jmullin.drifter.rendering
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.*
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Align
-import xyz.jmullin.drifter.extensions.*
 import xyz.jmullin.drifter.entity.Layer2D
 
 /**
@@ -54,7 +53,7 @@ object Draw {
      * }
      * }}}
      */
-    fun shapes(kind: ShapeRenderer.ShapeType, shader: ShaderProgram?=Shaders.default.program, f: (ShapeRenderer) -> Unit, layer: Layer2D, batch: Batch) {
+    fun shapes(kind: ShapeRenderer.ShapeType, shader: ShaderProgram?= Shaders.default.program, f: (ShapeRenderer) -> Unit, layer: Layer2D, batch: Batch) {
         batch.end()
         Gdx.gl.glEnable(GL20.GL_BLEND)
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
@@ -97,7 +96,7 @@ object Draw {
     /**
      * Draw a string with the given location, font and alignment, wrapped to the specified width.
      */
-    fun stringWrapped(str: String, v: Vector2, start: Int, end: Int, width: Float, font: BitmapFont, hAlign: Int, align: Vector2, batch: Batch) {
+    fun stringWrapped(str: String, v: Vector2, start: Int, end: Int, width: Float, font: BitmapFont, hAlign: Int, batch: Batch) {
         layout.setText(font, str, start, end, font.color, width, hAlign, true, null)
         font.draw(batch, layout, v.x, v.y)
     }

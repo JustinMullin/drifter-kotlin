@@ -2,8 +2,7 @@ package xyz.jmullin.drifter.entity
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
-import xyz.jmullin.drifter.DrifterInput
-import xyz.jmullin.drifter.extensions.*
+import xyz.jmullin.drifter.application.DrifterInput
 
 /**
  * General purpose container for Entity2Ds, allows attachment and management of children entities and passes
@@ -35,11 +34,11 @@ interface EntityContainer2D : DrifterInput {
      * @param e Entity to add.
      * @return The added entity.
      */
-    fun add(e: Entity2D) = {
+    fun add(e: Entity2D): Entity2D {
         children += e
         e.parent = this
         e.create(this)
-        e
+        return e
     }
 
     /**

@@ -3,8 +3,7 @@ package xyz.jmullin.drifter.extensions
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
-import java.util.Random
-import xyz.jmullin.drifter.extensions.*
+import java.util.*
 
 /**
  * Convenience methods for getting simple randomized results. Random functions require an implicit

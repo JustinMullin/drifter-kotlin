@@ -3,21 +3,26 @@ package xyz.jmullin.drifter.extensions
 import com.badlogic.gdx.math.Matrix3
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
+import xyz.jmullin.drifter.geometry.VectorHex
 import xyz.jmullin.drifter.extensions.FloatMath.abs as mAbs
-import xyz.jmullin.drifter.extensions.FloatMath.min as mMin
-import xyz.jmullin.drifter.extensions.FloatMath.max as mMax
 import xyz.jmullin.drifter.extensions.FloatMath.ceil as mCeil
 import xyz.jmullin.drifter.extensions.FloatMath.floor as mFloor
+import xyz.jmullin.drifter.extensions.FloatMath.max as mMax
+import xyz.jmullin.drifter.extensions.FloatMath.min as mMin
 import xyz.jmullin.drifter.extensions.FloatMath.round as mRound
-import xyz.jmullin.drifter.VectorHex
 
 /**
  * Convenience extensions/methods for manipulation of [[Vector2]]s.
  */
 
 fun V2(xy: Float) = Vector2(xy, xy)
-fun V2(x: Float, y: Float) = Vector2(x, y)
-fun V2(x: Int, y: Int) = Vector2(x*1f, y*1f)
+fun V2(x: Number, y: Number) = Vector2(x.toFloat(), y.toFloat())
+fun V2(xy: Pair<Number, Number>) = Vector2(xy.first.toFloat(), xy.second.toFloat())
+
+val Vector2.xI: Int get() = x.toInt()
+val Vector2.yI: Int get() = y.toInt()
+
+val range = V2(0, 0)..V2(10, 10)
 
 operator fun Vector2.plus(o: Vector2) = cpy().add(o)
 operator fun Vector2.plus(n: Float) = cpy().add(n, n)
@@ -28,6 +33,9 @@ operator fun Vector2.times(n: Float) = cpy().scl(n, n)
 operator fun Vector2.times(m: Matrix3) = cpy().mul(m)
 operator fun Vector2.div(o: Vector2) = cpy().scl(1f/o.x, 1f/o.y)
 operator fun Vector2.div(n: Float) = cpy().scl(1f/n, 1f/n)
+operator fun Vector2.unaryMinus() = inverse()
+
+operator fun Vector2.rangeTo(v: Vector2) = (yI..v.yI).flatMap { y -> (xI..v.xI).map { x -> Pair(x, y) } }.map(::V2)
 
 fun Vector2.abs() = V2(mAbs(x), mAbs(y))
 fun Vector2.inverse() = (this * -1f).fixZeroes()
@@ -37,16 +45,16 @@ fun Vector2.flipY() = (this * V2(1, -1)).fixZeroes()
 fun Vector2.center(o: Vector2) = this + o/2f
 fun Vector2.midpoint(o: Vector2) = V2((x-o.x)*0.5f, (y-o.y)*0.5f)
 
-fun Vector2.min(o: Vector2) = V2(mMin(x, x), mMin(y, y))
-fun Vector2.max(o: Vector2) = V2(mMax(x, x), mMax(y, y))
+fun Vector2.min(o: Vector2) = V2(mMin(x, o.x), mMin(y, o.y))
+fun Vector2.max(o: Vector2) = V2(mMax(x, o.x), mMax(y, o.y))
 fun Vector2.floor() = V2(mFloor(x), mFloor(y)).fixZeroes()
 fun Vector2.ceil() = V2(mCeil(x), mCeil(y)).fixZeroes()
 fun Vector2.round() = V2(mRound(x), mRound(y)).fixZeroes()
 
 fun Vector2.snap(scale: Float=1f) = V2(mFloor(x/scale), mFloor(y/scale))
 
-fun Vector2.neighbors() = (-1..1).flatMap { i -> (-1..1).map { j -> V2(i, j) } }.filter { !it.isZero }.map { this + it }
-fun Vector2.orthogonal() = (-1..1).flatMap { i -> (-1..1).map { j -> V2(i, j) } }.filter { it.len() == 1f }.map { this + it }
+fun Vector2.neighbors() = (V2(-1, -1)..V2(1, 1)).filter { !it.isZero }.map { this + it }
+fun Vector2.orthogonal() = (V2(-1, -1)..V2(1, 1)).filter { it.len() == 1f }.map { this + it }
 
 /**
  * Gets rid of negative zero situations for reasons of equality. This is almost certainly bad 'cause
@@ -64,9 +72,11 @@ fun Vector2.manhattanTo(b: Vector2) = {
     difference.x + difference.y
 }
 
-fun Vector2.toHex(size: Vector2) = VectorHex((x * (3f.sqrt())/3 - y / 3) / size.x, y * 2/3 / size.y).snap()
+fun Vector2.toHex(size: Vector2) = (VectorHex(x * (2/3f) / size.x, (-x / 3f + 3f.sqrt()/3f * y) / size.y)).snap()
 
 // SWIZZLING
+
+fun Vector2.list() = listOf(x, y)
 
 val Vector2.xx: Vector2 get() = V2(x, x)
 val Vector2.yy: Vector2 get() = V2(y, y)

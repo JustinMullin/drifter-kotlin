@@ -5,9 +5,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
-import xyz.jmullin.drifter.extensions.*
-import xyz.jmullin.drifter.ShaderSet
-import xyz.jmullin.drifter.Shaders
+import xyz.jmullin.drifter.rendering.ShaderSet
+import xyz.jmullin.drifter.rendering.Shaders
+import xyz.jmullin.drifter.extensions.V2
 
 /**
  * 2-dimensional layer implementation.  Contains Entity2Ds.
@@ -16,7 +16,7 @@ import xyz.jmullin.drifter.Shaders
  * @param autoCenter If true, the viewport will be auto-centered in the world.
  * @param shader If specified, the [[ShaderSet]] to use by default in rendering sprites.
  */
-class Layer2D(override val viewportSize: Vector2, val autoCenter: Boolean, shader: ShaderSet=Shaders.default) : EntityContainer2D, Layer {
+class Layer2D(override val viewportSize: Vector2, val autoCenter: Boolean, shader: ShaderSet = Shaders.default) : EntityContainer2D, Layer {
     // Self reference for containership
     override fun layer() = this
 

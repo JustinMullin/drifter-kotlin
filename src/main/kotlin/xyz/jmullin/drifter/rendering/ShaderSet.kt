@@ -1,4 +1,4 @@
-package xyz.jmullin.drifter
+package xyz.jmullin.drifter.rendering
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.glutils.ShaderProgram

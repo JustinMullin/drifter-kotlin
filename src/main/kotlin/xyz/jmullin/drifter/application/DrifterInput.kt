@@ -1,9 +1,8 @@
-package xyz.jmullin.drifter
+package xyz.jmullin.drifter.application
 
-import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.math.Vector2
 import xyz.jmullin.drifter.entity.InputDefaults
-import xyz.jmullin.drifter.extensions.*
+import xyz.jmullin.drifter.extensions.V2
 
 /**
  * Input adapter that wraps x,y pairs into vectors.

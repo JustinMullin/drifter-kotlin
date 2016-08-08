@@ -1,5 +1,6 @@
-package xyz.jmullin.drifter
+package xyz.jmullin.drifter.geometry
 
+import com.badlogic.gdx.math.Vector2
 import xyz.jmullin.drifter.extensions.*
 
 data class VectorHex(val q: Float, val r: Float, val s: Float) {
@@ -8,6 +9,7 @@ data class VectorHex(val q: Float, val r: Float, val s: Float) {
     }
 
     constructor(q: Float, s: Float): this(q, -q-s, s)
+    constructor(q: Int, s: Int): this(q*1f, s*1f)
     constructor(q: Int, r: Int, s: Int): this(q*1f, r*1f, s*1f)
 
     operator fun plus(o: VectorHex) = VectorHex(q + o.q, r + o.r, s + o.s)
@@ -18,19 +20,26 @@ data class VectorHex(val q: Float, val r: Float, val s: Float) {
     fun inverse() = VectorHex(-q, -r, -s)
     fun fixZeroes() = VectorHex(if(q == 0.0f) 0.0f else q, if(r == 0.0f) 0.0f else r, if(s == 0.0f) 0.0f else s)
 
-    fun toV() = V2(3f.sqrt() * (q + r / 2), 3 / 2 * r)
+    fun toV() = V2(3f/2f * q, 3f.sqrt() * (r + q/2f))
 
-    fun snap() = {
+    fun hexCorner(cornerIndex: Int): Vector2 {
+        val angle = (Pi / 3f) * cornerIndex
+        return V2(angle.cos(), angle.sin())
+    }
+
+    fun corners(size: Vector2) = (0..5).map { toV() + size * hexCorner(it) }
+
+    fun snap(): VectorHex {
         val rQ = q.round()
         val rR = r.round()
         val rS = s.round()
 
-        if ((rQ - q).abs() > (rR - r).abs() && (rQ - q).abs() > (rS - s).abs()) {
-            VectorHex(-rR-rS, rR, rS)
+        return if ((rQ - q).abs() > (rR - r).abs() && (rQ - q).abs() > (rS - s).abs()) {
+            Vh(-rR-rS, rR, rS)
         } else if ((rR - r).abs() > (rS - s).abs()) {
-            VectorHex(rQ, -rQ-rS, rS)
+            Vh(rQ, -rQ-rS, rS)
         } else {
-            VectorHex(rQ, rR, -rQ-rR)
+            Vh(rQ, rR, -rQ-rR)
         }
     }
 }

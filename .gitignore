@@ -12,6 +12,10 @@ src_managed/
 project/boot/
 project/plugins/project/
 
+# Gradle
+.gradle
+build/
+
 # IDEA
 .idea
 *.iml

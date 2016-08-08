@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
-import xyz.jmullin.drifter.DrifterInput
+import xyz.jmullin.drifter.application.DrifterInput
 import xyz.jmullin.drifter.extensions.*
 
 /**
@@ -42,11 +42,11 @@ interface EntityContainer3D : DrifterInput {
      * @param e Entity to add.
      * @return The added entity.
      */
-    fun add(e: Entity3D) = {
+    fun add(e: Entity3D): Entity3D {
         children += e
         e.parent = this
         e.create(this)
-        e
+        return e
     }
 
     /**
