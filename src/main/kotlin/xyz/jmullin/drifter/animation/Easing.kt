@@ -9,7 +9,10 @@ import xyz.jmullin.drifter.extensions.sin
  * @param interpolate Function to use in interpolating; takes a linear alpha and returns the interpolated alpha.
  */
 open class Easing(val interpolate: (Float) -> Float) {
-    fun apply(n: Float) = interpolate(n)
+    /**
+     * Applies an alpha to the given interpolation function.
+     */
+    fun apply(a: Float) = interpolate(a)
 
     /**
      * Commonly used easing functions.

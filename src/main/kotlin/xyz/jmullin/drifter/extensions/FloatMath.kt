@@ -17,6 +17,7 @@ package xyz.jmullin.drifter.extensions
  */
 val Pi: Float = Math.PI.toFloat()
 val E: Float = Math.E.toFloat()
+val Epsilon = 0.00000001f
 
 fun Float.sin(): Float = FloatMath.sin(this)
 fun Float.cos(): Float = FloatMath.cos(this)
@@ -53,6 +54,7 @@ fun Float.next(direction: Double): Float = Math.nextAfter(this, direction)
 fun Float.nextUp(): Float = Math.nextUp(this)
 fun Float.scalb(scaleFactor: Int): Float = Math.scalb(this, scaleFactor)
 fun Float.clamp(min: Float, max: Float): Float = Math.max(min, Math.min(this, max))
+fun Float.fEq(o: Float): Boolean = Math.abs(this-o) <= Epsilon
 
 object FloatMath {
     fun abs(value: Float): Float = Math.abs(value)

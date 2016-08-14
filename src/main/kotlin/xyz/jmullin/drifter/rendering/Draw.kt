@@ -1,7 +1,9 @@
 package xyz.jmullin.drifter.rendering
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.*
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
@@ -18,6 +20,21 @@ object Draw {
      * Shared GlyphLayout for calculating text display.  Very not thread safe!
      */
     private var layout = GlyphLayout()
+
+    /**
+     * Shared PolygonSpriteBatch for rendering polygons.
+     */
+    private val polygonBatch = PolygonSpriteBatch(2000)
+
+    /**
+     * Simple 1px white fill sprite for drawing filled regions.
+     */
+    val fill: Sprite by lazy {
+        val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
+        pixmap.setColor(Color.WHITE)
+        pixmap.fill()
+        Sprite(Texture(pixmap))
+    }
 
     /**
      * Draw a sprite at a given position and size.
@@ -99,5 +116,17 @@ object Draw {
     fun stringWrapped(str: String, v: Vector2, start: Int, end: Int, width: Float, font: BitmapFont, hAlign: Int, batch: Batch) {
         layout.setText(font, str, start, end, font.color, width, hAlign, true, null)
         font.draw(batch, layout, v.x, v.y)
+    }
+
+    /**
+     * Set up a polygon renderer for drawing filled polygons.
+     */
+    fun polygons(layer: Layer2D?, f: (PolygonRenderer) -> Unit) {
+        polygonBatch.begin()
+        polygonBatch.projectionMatrix = layer?.camera?.projection
+
+        f(PolygonRenderer(polygonBatch))
+
+        polygonBatch.end()
     }
 }
