@@ -18,6 +18,19 @@ repositories {
     mavenCentral()
 }
 
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+jar {
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "com.badlogicgames.gdx:gdx:latest.integration"

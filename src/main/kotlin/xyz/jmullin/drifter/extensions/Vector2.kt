@@ -51,10 +51,14 @@ fun Vector2.floor() = V2(mFloor(x), mFloor(y)).fixZeroes()
 fun Vector2.ceil() = V2(mCeil(x), mCeil(y)).fixZeroes()
 fun Vector2.round() = V2(mRound(x), mRound(y)).fixZeroes()
 
-fun Vector2.snap(scale: Float=1f) = V2(mFloor(x/scale), mFloor(y/scale))
-
 fun Vector2.neighbors() = (V2(-1, -1)..V2(1, 1)).filter { !it.isZero }.map { this + it }
 fun Vector2.orthogonal() = (V2(-1, -1)..V2(1, 1)).filter { it.len() == 1f }.map { this + it }
+
+fun Vector2.snap(scale: Float=1f) = V2(mFloor(x/scale), mFloor(y/scale)) * scale
+fun Vector2.snap(scale: Vector2) = (this / scale).floor() * scale
+
+fun Vector2.toGrid(scale: Float=1f) = V2(mFloor(x/scale), mFloor(y/scale))
+fun Vector2.toGrid(scale: Vector2) = (this / scale).floor()
 
 /**
  * Gets rid of negative zero situations for reasons of equality. This is almost certainly bad 'cause
@@ -67,9 +71,11 @@ fun Vector2.fixZeroes() = V2(if(x == 0.0f) 0.0f else x, if(y == 0.0f) 0.0f else 
 val Vector2.minComponent: Float get() = mMin(mAbs(x), mAbs(y))
 val Vector2.maxComponent: Float get() = mMax(mAbs(x), mAbs(y))
 
-fun Vector2.manhattanTo(b: Vector2) = {
+fun Vector2.distanceTo(b: Vector2) = (b - this).len()
+
+fun Vector2.manhattanTo(b: Vector2): Float {
     val difference = (b-this).abs()
-    difference.x + difference.y
+    return difference.x + difference.y
 }
 
 fun Vector2.toHex(size: Vector2) = (VectorHex(x * (2/3f) / size.x, (-x / 3f + 3f.sqrt()/3f * y) / size.y)).snap()
@@ -80,6 +86,10 @@ fun Vector2.list() = listOf(x, y)
 
 val Vector2.xx: Vector2 get() = V2(x, x)
 val Vector2.yy: Vector2 get() = V2(y, y)
+val Vector2.xo: Vector2 get() = V2(x, 0)
+val Vector2.yo: Vector2 get() = V2(y, 0)
+val Vector2.ox: Vector2 get() = V2(0, x)
+val Vector2.oy: Vector2 get() = V2(0, y)
 
 val Vector2.xxx: Vector3 get() = V3(x, x, x)
 val Vector2.xxy: Vector3 get() = V3(x, x, y)

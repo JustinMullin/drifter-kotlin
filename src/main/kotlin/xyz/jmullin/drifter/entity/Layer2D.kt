@@ -117,5 +117,13 @@ class Layer2D(override val viewportSize: Vector2, val autoCenter: Boolean, shade
      */
     fun unproject(v: Vector2) = viewport?.unproject(v.cpy()) ?: V2(0f)
 
+    /**
+     * Projects a world coordinate into screen space via the viewport.
+     *
+     * @param v Point to project.
+     * @return The corresponding screen space coordinate.
+     */
+    fun project(v: Vector2) = viewport?.project(v.cpy()) ?: V2(0f)
+
     override fun dispose() {}
 }

@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram
  * @param fragmentShaderName Filename of the fragment shader to load.
  * @param vertexShaderName Filename of the vertex shader to load.
  */
-class ShaderSet(val fragmentShaderName: String, val vertexShaderName: String) {
+open class ShaderSet(val fragmentShaderName: String, val vertexShaderName: String) {
     val vert = Gdx.files.internal("shader/$vertexShaderName.vert")
     val frag = Gdx.files.internal("shader/$fragmentShaderName.frag")
 
@@ -32,12 +32,14 @@ class ShaderSet(val fragmentShaderName: String, val vertexShaderName: String) {
      * Compile the shader program from the specified source.
      */
     fun compile() {
-        program = ShaderProgram(vert, frag)
+        program = ShaderProgram(vert, frag).apply {
+            if(isCompiled) {
+                println("Shader ($frag, $vert) compiled successfully.")
+            } else {
+                println("Shader ($frag, $vert) failed to compile:\n${log.split("\n").map { "\t" + it }.joinToString("\n")}")
+            }
+        }
         lastCompileTime = System.currentTimeMillis()
-
-        //if(!program.isCompiled) {
-        //println(program.getLog)
-        //}
     }
 
     /**
@@ -53,10 +55,10 @@ class ShaderSet(val fragmentShaderName: String, val vertexShaderName: String) {
     /**
      * Extend to set shader parameters at creation time.
      */
-    fun init() {}
+    open fun init() {}
 
     /**
      * Extend to set shader parameters on a tick-by-tick basis.
      */
-    fun tick() {}
+    open fun tick() {}
 }

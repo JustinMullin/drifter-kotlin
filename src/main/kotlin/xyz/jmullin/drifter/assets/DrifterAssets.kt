@@ -1,8 +1,11 @@
 package xyz.jmullin.drifter.assets
 
+import com.badlogic.gdx.Audio
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
+import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
@@ -83,11 +86,12 @@ open class DrifterAssets(atlasName: String? = null) {
         for(field in fields()) {
             if(field.type == Sprite::class.java) {
                 if(primaryAtlas == null) {
-                    throw RuntimeException("No texture atlas loaded to pull sprite '${field.name}' from.  At least one TextureAtlas is required to load Sprites.")
+                    throw DrifterAssetsException("No texture atlas loaded to pull sprite '${field.name}' from. At least one TextureAtlas is required to load Sprites.")
                 }
 
                 field.isAccessible = true
-                field.set(this, primaryAtlas?.createSprite(field.name))
+                val sprite = primaryAtlas?.createSprite(field.name) ?: throw DrifterAssetsException("Failed to load sprite '${field.name}.' Is the sprite present in the texture atlas?")
+                field.set(this, sprite)
             }
             /*if(field.type == Animation::class.java) {
                 val pattern = """([a-zA-Z]+)(\d+)""".r
@@ -117,22 +121,21 @@ open class DrifterAssets(atlasName: String? = null) {
 
     companion object DrifterAssets {
         // These placeholders can be used to simplify the task of specifying types in an Assets object.
-        // NOTE: These return null, and should only be used in the context of an Assets object which has yet
-        // to be auto-populated!
-        val texture: Texture? = null
-        val font: BitmapFont? = null
-        val sound: Sound? = null
-        val music: Music? = null
-        val skin: Skin? = null
-        val atlas: TextureAtlas? = null
-        val sprite: Sprite? = null
+        // This is probably an abuse of type inference. Huh.
+        val texture = Texture(0, 0, Pixmap.Format.Alpha)
+        val font = BitmapFont()
+        val sound = PlaceholderSound()
+        val music = PlaceholderMusic()
+        val skin = Skin(TextureAtlas())
+        val atlas: TextureAtlas = TextureAtlas()
+        val sprite = Sprite()
 
         /**
          * Map of classes to asset types.  Currently the assumption is a single type of asset will always correspond
          * to a single well-defined path and file extension.
          */
         val PrefixMap = mapOf<Class<*>, AssetType>(
-            Texture::class.java to AssetType("texture/", ".png"),
+            Texture::class.java to AssetType("image/", ".png"),
             BitmapFont::class.java to AssetType("font/", ".fnt"),
             Sound::class.java to AssetType("sound/", ".wav"),
             Music::class.java to AssetType("music/", ".ogg"),
