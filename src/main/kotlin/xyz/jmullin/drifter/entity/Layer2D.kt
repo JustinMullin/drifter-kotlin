@@ -16,7 +16,7 @@ import xyz.jmullin.drifter.extensions.V2
  * @param autoCenter If true, the viewport will be auto-centered in the world.
  * @param shader If specified, the [[ShaderSet]] to use by default in rendering sprites.
  */
-class Layer2D(override val viewportSize: Vector2, val autoCenter: Boolean, shader: ShaderSet = Shaders.default) : EntityContainer2D, Layer {
+class Layer2D(override val index: Int, override val viewportSize: Vector2, val autoCenter: Boolean, shader: ShaderSet = Shaders.default) : EntityContainer2D, Layer {
     // Self reference for containership
     override fun layer() = this
 

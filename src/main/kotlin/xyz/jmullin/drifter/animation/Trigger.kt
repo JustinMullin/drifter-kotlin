@@ -22,9 +22,10 @@ abstract class Trigger(val f: () -> Unit) : Hook {
      *
      * @return this
      */
-    open fun go(): Trigger {
-        parent?.add(this)
-        parent?.let { update(0f, it) }
+    open fun go(parent: Entity): Trigger {
+        this.parent = parent
+        parent.add(this)
+        parent.let { update(0f, it) }
         return this
     }
 
@@ -36,7 +37,7 @@ abstract class Trigger(val f: () -> Unit) : Hook {
      */
     fun execute(): Trigger {
         f()
-        next?.go()
+        parent?.let { next?.go(it) }
         return this
     }
 

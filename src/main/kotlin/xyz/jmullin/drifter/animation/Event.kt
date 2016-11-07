@@ -15,9 +15,9 @@ class Event(done: () -> Unit) : Trigger(done) {
     /**
      * Executes this event.
      */
-    override fun go(): Trigger {
+    override fun go(parent: Entity): Trigger {
         execute()
-        return super.go()
+        return super.go(parent)
     }
 
     /**

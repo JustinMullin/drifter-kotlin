@@ -16,9 +16,9 @@ import xyz.jmullin.drifter.extensions.*
  * @param align Alignment of FPS counter on the screen - if align is (1, 1), for example, FPS will be drawn
  *              aligned at the top-right of the screen.  At (0, 0) it will be drawn at the lower left.
  */
-class FPSDisplay(val font: () -> BitmapFont, val color: Color = Color.YELLOW, val align: Vector2 = V2(0, 1)) : Entity2D() {
+class FPSDisplay(val font: BitmapFont, val color: Color = Color.YELLOW, val align: Vector2 = V2(0, 1)) : Entity2D() {
     override fun render(batch: SpriteBatch) {
-        font().color = Color.YELLOW
-        Draw.string("FPS: ${gameFps()}", align.max(V2(0f))*gameSize() + align.inverse()*3f, font(), align.inverse(), batch)
+        font.color = Color.YELLOW
+        Draw.string("FPS: ${gameFps()}", align.max(V2(0f))*gameSize() + align.inverse()*3f, font, align.inverse(), batch)
     }
 }

@@ -28,6 +28,7 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
      * Layers attached to this screen.
      */
     var layers = emptyList<Layer>()
+        set(list) { field = list.sortedBy { it.index } }
 
     /**
      * Create and attach a new Layer2D to this screen.
@@ -37,8 +38,8 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
      * @param shader If specified, the default shader for rendering this layer.
      * @return The created Layer.
      */
-    fun newLayer2D(size: Vector2, autoCenter: Boolean=false, shader: ShaderSet = Shaders.default): Layer2D {
-        val layer = Layer2D(size, autoCenter, shader)
+    fun newLayer2D(index: Int, size: Vector2, autoCenter: Boolean=false, shader: ShaderSet = Shaders.default): Layer2D {
+        val layer = Layer2D(index, size, autoCenter, shader)
         layers += layer
         return layer
     }
@@ -49,8 +50,8 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
      * @param size Size of the new layer.
      * @return The created Layer.
      */
-    fun newLayer3D(size: Vector2, fov: Float = 67f, shaderProvider: ShaderProvider = DefaultShaderProvider()): Layer3D {
-        val layer = Layer3D(size, fov, shaderProvider)
+    fun newLayer3D(index: Int, size: Vector2, fov: Float = 67f, shaderProvider: ShaderProvider = DefaultShaderProvider()): Layer3D {
+        val layer = Layer3D(index, size, fov, shaderProvider)
         layers += layer
         return layer
     }

@@ -10,7 +10,7 @@ import xyz.jmullin.drifter.entity.Layer2D
  */
 object Shaders {
     init {
-        ShaderProgram.pedantic = false
+        ShaderProgram.pedantic = true
     }
 
     val default = ShaderSet("default", "default")

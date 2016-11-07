@@ -42,7 +42,7 @@ open class Entity2D : EntityContainer2D, Entity() {
     val width: Float get() = size.x
     val height: Float get() = size.y
     val _bounds = Rectangle()
-    val bounds: Rectangle get() = _bounds.set(x, y, width, height)
+    open val bounds: Rectangle get() = _bounds.set(x, y, width, height)
 
     /**
      * Called by the parent container when this entity is added to it.  Override to perform some

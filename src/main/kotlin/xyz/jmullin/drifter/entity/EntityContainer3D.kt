@@ -31,7 +31,7 @@ interface EntityContainer3D : DrifterInput {
      * @param e Entity to remove.
      */
     fun remove(e: Entity3D) {
-        children = children.filterNot { it.equals(e) }
+        children = children.filterNot { it == e }
         children.forEach { it.remove(e) }
         e.parent = null
     }
@@ -42,7 +42,7 @@ interface EntityContainer3D : DrifterInput {
      * @param e Entity to add.
      * @return The added entity.
      */
-    fun add(e: Entity3D): Entity3D {
+    fun <T : Entity3D> add(e: T): T {
         children += e
         e.parent = this
         e.create(this)

@@ -3,6 +3,7 @@ package xyz.jmullin.drifter.assets
 import com.badlogic.gdx.Audio
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.assets.loaders.TextureLoader
 import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.Pixmap
@@ -38,6 +39,8 @@ open class DrifterAssets(atlasName: String? = null) {
 
     var primaryAtlas: TextureAtlas? = null
     val atlasPath = atlasName?.let { "atlas/$it.atlas" }
+
+    val textureParameter = TextureLoader.TextureParameter()
 
     /**
      * Retrieves a list of fields from ''this''.
@@ -135,7 +138,7 @@ open class DrifterAssets(atlasName: String? = null) {
          * to a single well-defined path and file extension.
          */
         val PrefixMap = mapOf<Class<*>, AssetType>(
-            Texture::class.java to AssetType("image/", ".png"),
+            Texture::class.java to AssetType("texture/", ".png"),
             BitmapFont::class.java to AssetType("font/", ".fnt"),
             Sound::class.java to AssetType("sound/", ".wav"),
             Music::class.java to AssetType("music/", ".ogg"),

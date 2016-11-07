@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.viewport.Viewport
  * performed).
  */
 interface Layer : InputProcessor {
+    val index: Int
     val viewportSize: Vector2
     var viewport: Viewport?
 
