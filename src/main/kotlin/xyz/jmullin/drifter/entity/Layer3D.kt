@@ -16,7 +16,7 @@ import xyz.jmullin.drifter.extensions.V3
  *
  * @param viewportSize Size of the viewport to use in drawing the world.
  */
-class Layer3D(override val index: Int, override val viewportSize: Vector2, fov: Float = 67f, shaderProvider: ShaderProvider = DefaultShaderProvider()) : EntityContainer3D, Layer {
+open class Layer3D(override val index: Int, override val viewportSize: Vector2, fov: Float = 67f, shaderProvider: ShaderProvider = DefaultShaderProvider()) : EntityContainer3D, Layer {
     override var children = emptyList<Entity3D>()
     override var mouseLocked: Vector2? = null
 

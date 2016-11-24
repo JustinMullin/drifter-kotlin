@@ -15,6 +15,7 @@ import xyz.jmullin.drifter.extensions.V3
  */
 @Suppress("UNUSED_PARAMETER")
 open class Entity3D : EntityContainer3D, Entity() {
+
     // Implicits for local context
     fun self() = this
     override fun layer() = parent?.layer()

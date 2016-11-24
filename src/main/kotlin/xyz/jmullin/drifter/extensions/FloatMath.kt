@@ -88,4 +88,8 @@ object FloatMath {
     fun log1p(x: Float): Float = Math.log1p(x.toDouble()).toFloat()
     fun nextAfter(start: Float, direction: Float): Float = Math.nextAfter(start, direction.toDouble())
     fun clamp(value: Float, min: Float, max: Float): Float = Math.max(min, Math.min(value, max))
+
+    fun lerp(a: Float, b: Float, alpha: Float) = a + (b-a) * alpha
+    fun lerpRelative(a: Float, b: Float, c: Float) = lerp(a, b, alpha(a, b, c))
+    fun alpha(a: Float, b: Float, c: Float) = (c - a) / (b - a)
 }

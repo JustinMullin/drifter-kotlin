@@ -57,6 +57,16 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
     }
 
     /**
+     * Attaches a layer to this screen.
+     *
+     * @param layer The Layer to attach.
+     */
+    fun <L : Layer> add(layer: L): L {
+        layers += layer
+        return layer
+    }
+
+    /**
      * Renders the screen and all attached layers, clearing the screen and setting up default blending modes.
      *
      * @param delta Time elapsed since the last frame.

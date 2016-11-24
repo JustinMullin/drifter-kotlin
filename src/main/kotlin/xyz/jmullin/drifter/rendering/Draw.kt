@@ -24,7 +24,7 @@ object Draw {
     /**
      * Shared PolygonSpriteBatch for rendering polygons.
      */
-    private val polygonBatch = PolygonSpriteBatch(2000)
+    private val polygonBatch = PolygonSpriteBatch(2000, Shaders.default.program)
 
     /**
      * Simple 1px white fill sprite for drawing filled regions.

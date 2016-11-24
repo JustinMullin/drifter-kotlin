@@ -33,8 +33,7 @@ artifacts {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "com.badlogicgames.gdx:gdx:latest.integration"
-    compile "com.badlogicgames.gdx:gdx-box2d:latest.integration"
+    compile "com.badlogicgames.gdx:gdx:1.9.4"
     testCompile 'junit:junit:4.11'
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 }

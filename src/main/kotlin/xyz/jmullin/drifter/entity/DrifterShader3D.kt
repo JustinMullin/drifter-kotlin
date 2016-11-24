@@ -26,9 +26,24 @@ import com.badlogic.gdx.graphics.g3d.shaders.BaseShader.Setter as SetterGDX
 /**
  * Basic 3D LibGDX shader implementation in Scala, based on [[DefaultShader]].
  */
-open class DrifterShader3D(open var renderable: Renderable) : BaseShader() {
-    
+open class DrifterShader3D(open var renderable: Renderable,
+                           val vertexShader: String? = null,
+                           val fragmentShader: String? = null) : BaseShader() {
+
+    var blendingEnabled = false
+    var blendSource = GL20.GL_SRC_ALPHA
+    var blendDest = GL20.GL_ONE_MINUS_SRC_ALPHA
+    var cullFace = GL_BACK
+    var depthTest = GL_LEQUAL
+    var depthRangeNear = 0f
+    var depthRangeFar = 1f
+    var depthMask = true
+
     init {
+        defaultShaders()
+    }
+
+    open fun defaultShaders() {
         register(cameraProjection)
         register(cameraView)
         register(cameraCombined)
@@ -45,6 +60,7 @@ open class DrifterShader3D(open var renderable: Renderable) : BaseShader() {
         register(specularColor)
         register(specularTexture)
         register(emissiveColor)
+        register(emissiveTexture)
         register(reflectionColor)
         register(normalTexture)
         register(environmentCubemap)
@@ -55,21 +71,31 @@ open class DrifterShader3D(open var renderable: Renderable) : BaseShader() {
     }
 
     override fun init() {
-        init(ShaderProgram(Gdx.files.internal("shader/default3d.vert"), Gdx.files.internal("shader/default3d.frag")), renderable)
+
+        init(ShaderProgram(
+            Gdx.files.internal("shader/${vertexShader ?: "default3d"}.vert"),
+            Gdx.files.internal("shader/${fragmentShader ?: "default3d"}.frag")),
+            renderable)
     }
 
     override fun render(renderable: Renderable) {
-        context.setBlending(false, GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
+        context.setBlending(blendingEnabled, blendSource, blendDest)
 
-        context.setCullFace(GL_BACK)
-        context.setDepthTest(GL_LEQUAL, 0f, 1f)
-        context.setDepthMask(true)
+        context.setCullFace(cullFace)
+        context.setDepthTest(depthTest, depthRangeNear, depthRangeFar)
+        context.setDepthMask(depthMask)
 
         super.render(renderable)
     }
 
     override fun canRender(instance: Renderable) = true
     override fun compareTo(other: Shader) = 0
+
+    fun <T : Any> uniform(name: String, f: (BaseShader, Renderable?, Attributes?) -> T) = register(setter(name, f, true))
+    fun <T : Any> uniformLocal(name: String, f: (BaseShader, Renderable?, Attributes?) -> T) = register(setter(name, f, false))
+
+    fun <T : Any> uniform(name: String, v: T) = register(setter(name, { s, r, a -> v }, true))
+    fun <T : Any> uniformLocal(name: String, v: T) = register(setter(name, { s, r, a -> v }, false))
 
     companion object DrifterShader3D {
         val cameraProjection = setter("cameraProjection", { s: BaseShader, r: Renderable?, a: Attributes? ->
@@ -109,7 +135,7 @@ open class DrifterShader3D(open var renderable: Renderable) : BaseShader() {
             a?.get(ColorAttribute.Diffuse).let { a -> when(a) { is ColorAttribute -> a.color; else -> Color.WHITE } } }, false)
 
         val diffuseTexture = setter("material.diffuseTexture", { s: BaseShader, r: Renderable?, a: Attributes? ->
-            s.context.textureBinder.bind(a?.get(TextureAttribute.Diffuse).let { a -> when(a) { is TextureAttribute -> a.textureDescription; else -> null } }) }, false)
+            a?.get(TextureAttribute.Diffuse).let { a -> when(a) { is TextureAttribute -> a.textureDescription; else -> null } }?.let { s.context.textureBinder.bind(it) } ?: 0 }, false)
 
         val specularColor = setter<Color>("material.specularColor", { s: BaseShader, r: Renderable?, a: Attributes? ->
             a?.get(ColorAttribute.Specular).let { a -> when(a) { is ColorAttribute -> a.color; else -> Color.WHITE } } }, false)
@@ -119,6 +145,9 @@ open class DrifterShader3D(open var renderable: Renderable) : BaseShader() {
 
         val emissiveColor = setter<Color>("material.emissiveColor", { s: BaseShader, r: Renderable?, a: Attributes? ->
             a?.get(ColorAttribute.Emissive).let { a -> when(a) { is ColorAttribute -> a.color; else -> Color.WHITE } } }, false)
+
+        val emissiveTexture = setter("material.emissiveTexture", { s: BaseShader, r: Renderable?, a: Attributes? ->
+            s.context.textureBinder.bind(a?.get(TextureAttribute.Emissive).let { a -> when(a) { is TextureAttribute -> a.textureDescription; else -> null } }) }, false)
 
         val reflectionColor = setter<Color>("material.reflectionColor", { s: BaseShader, r: Renderable?, a: Attributes? ->
             a?.get(ColorAttribute.Reflection).let { a -> when(a) { is ColorAttribute -> a.color; else -> Color.WHITE } } }, false)
@@ -139,34 +168,29 @@ open class DrifterShader3D(open var renderable: Renderable) : BaseShader() {
             }
         }
 
-        fun <T : Any> setter(uniformName: String, f: (BaseShader, Renderable?, Attributes?) -> T, global: Boolean, needsLookup: Boolean = false) = object : Setter(uniformName, global) {
+        fun <T : Any> setter(uniformName: String, f: (BaseShader, Renderable?, Attributes?) -> T, global: Boolean) = object : Setter(uniformName, global) {
             override fun set(shader: BaseShader, inputID: Int, renderable: Renderable?, attributes: Attributes?) {
-                val lookupIndex = if(needsLookup) shader.program.getUniformLocation(uniformName) else null
-
                 val value = f(shader, renderable, attributes)
                 when(value) {
-                    is Float -> lookupIndex?.let { shader.program.setUniformf(lookupIndex, value) } ?: shader.set(inputID, value)
-                    is Int -> lookupIndex?.let { shader.program.setUniformi(lookupIndex, value) } ?: shader.set(inputID, value)
-                    is Vector2 -> lookupIndex?.let { shader.program.setUniformf(lookupIndex, value) } ?: shader.set(inputID, value)
-                    is Vector3 -> lookupIndex?.let { shader.program.setUniformf(lookupIndex, value) } ?: shader.set(inputID, value)
+                    is Float -> shader.set(inputID, value)
+                    is Int -> shader.set(inputID, value)
+                    is Vector2 -> shader.set(inputID, value)
+                    is Vector3 -> shader.set(inputID, value)
                     is Pair<*, *> -> {
                         @Suppress("USELESS_CAST")
                         if(value.first is Vector3 && value.second is Float) {
                             val v = value.first as Vector3
                             val a = value.second as Float
-                            lookupIndex?.let { shader.program.setUniformf(lookupIndex, v.x, v.y, v.z, a); true } ?:
-                                shader.set(inputID, v.x, v.y, v.z, a)
+                            shader.set(inputID, v.x, v.y, v.z, a)
                         }
                     }
-                    is Matrix3 -> lookupIndex?.let { shader.program.setUniformMatrix(lookupIndex, value) } ?: shader.set(inputID, value)
-                    is Matrix4 -> lookupIndex?.let { shader.program.setUniformMatrix(lookupIndex, value) } ?: shader.set(inputID, value)
-                    is Color -> lookupIndex?.let { shader.program.setUniformf(lookupIndex, value) } ?: shader.set(inputID, value)
+                    is Matrix3 -> shader.set(inputID, value)
+                    is Matrix4 -> shader.set(inputID, value)
+                    is Color -> shader.set(inputID, value)
                     else -> throw Exception("No shader setter found for type " + value.javaClass.simpleName)
                 }
             }
         }
-
-        fun <T : Any> setter(uniformName: String, v: T, global: Boolean): Setter = setter(uniformName, { s: BaseShader, r: Renderable?, a: Attributes? -> v }, global)
 
     }}
 
