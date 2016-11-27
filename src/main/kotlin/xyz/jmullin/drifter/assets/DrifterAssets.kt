@@ -14,6 +14,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.reflect.ClassReflection
 import com.badlogic.gdx.utils.reflect.Field
+import xyz.jmullin.drifter.assets.delegates.FontDelegate
+import xyz.jmullin.drifter.assets.delegates.TextureDelegate
 
 /**
  * Used for loading and storing an assets library.
@@ -40,7 +42,11 @@ open class DrifterAssets(atlasName: String? = null) {
     var primaryAtlas: TextureAtlas? = null
     val atlasPath = atlasName?.let { "atlas/$it.atlas" }
 
-    val textureParameter = TextureLoader.TextureParameter()
+    val texture = TextureDelegate(this)
+    val font = FontDelegate(this)
+
+    fun texture(name: String) = TextureDelegate(name, this)
+    fun font(name: String) = TextureDelegate(name, this)
 
     /**
      * Retrieves a list of fields from ''this''.
@@ -56,6 +62,7 @@ open class DrifterAssets(atlasName: String? = null) {
         }
 
         for(field in fields()) {
+            println("Loading ${field.name} / ${field.type}")
             if(PrefixMap.contains(field.type)) {
                 manager.load(getAssetPath(field), field.type)
             }
@@ -123,16 +130,6 @@ open class DrifterAssets(atlasName: String? = null) {
     }
 
     companion object DrifterAssets {
-        // These placeholders can be used to simplify the task of specifying types in an Assets object.
-        // This is probably an abuse of type inference. Huh.
-        val texture = Texture(0, 0, Pixmap.Format.Alpha)
-        val font = BitmapFont()
-        val sound = PlaceholderSound()
-        val music = PlaceholderMusic()
-        val skin = Skin(TextureAtlas())
-        val atlas: TextureAtlas = TextureAtlas()
-        val sprite = Sprite()
-
         /**
          * Map of classes to asset types.  Currently the assumption is a single type of asset will always correspond
          * to a single well-defined path and file extension.
