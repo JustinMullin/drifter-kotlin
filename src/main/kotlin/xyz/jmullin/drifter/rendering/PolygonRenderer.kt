@@ -7,10 +7,7 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.EarClippingTriangulator
 import com.badlogic.gdx.math.Vector2
-import xyz.jmullin.drifter.extensions.Ci
 import xyz.jmullin.drifter.extensions.list
-import xyz.jmullin.drifter.extensions.plus
-import xyz.jmullin.drifter.extensions.times
 
 /**
  * Simple renderer wrapped around a PolygonBatch

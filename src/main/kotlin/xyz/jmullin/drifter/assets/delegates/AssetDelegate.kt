@@ -1,7 +1,7 @@
 package xyz.jmullin.drifter.assets.delegates
 
-import com.badlogic.gdx.graphics.Texture
 import xyz.jmullin.drifter.assets.DrifterAssets
+import xyz.jmullin.drifter.assets.DrifterAssetsException
 import kotlin.reflect.KProperty
 
 abstract class AssetDelegate<T>(var assetName: String?, val assets: DrifterAssets) {
@@ -12,20 +12,14 @@ abstract class AssetDelegate<T>(var assetName: String?, val assets: DrifterAsset
     abstract fun path(name: String): String
     abstract val type: Class<T>
 
-    fun safeAssetName(): String = assetName ?: throw Exception("No asset name provided for delegate $this.")
-
-    init {
-        if(assetName != null) {
-            loadAsset()
-        }
-    }
+    fun safeAssetName(): String = assetName ?: throw DrifterAssetsException("No asset name provided for delegate $this.")
 
     fun populateName(name: String) {
         assetName = name
         loadAsset()
     }
 
-    fun loadAsset() {
+    open fun loadAsset() {
         assets.manager.load(path(safeAssetName()), type)
     }
 
@@ -33,7 +27,7 @@ abstract class AssetDelegate<T>(var assetName: String?, val assets: DrifterAsset
         return value ?: getAsset()
     }
 
-    fun getAsset(): T {
+    open fun getAsset(): T {
         return assets.manager.get(path(safeAssetName()), type).apply {
             value = this
         }

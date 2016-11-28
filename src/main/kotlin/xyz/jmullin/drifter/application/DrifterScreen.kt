@@ -98,7 +98,7 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
     override fun show() {
         resize(gameW(), gameH())
 
-        val inputs = (layers + this).reversed().toTypedArray()
+        val inputs = (layers + this).reversed().toTypedArray() + DebugInput()
 
         Gdx.input.inputProcessor = InputMultiplexer(*inputs)
     }

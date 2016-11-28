@@ -59,6 +59,13 @@ object Draw {
     }
 
     /**
+     * Draw a texture at a given position and size.
+     */
+    fun texture(texture: Texture, v: Vector2, size: Vector2, uvA: Vector2, uvB: Vector2, batch: Batch) {
+        batch.draw(texture, v.x, v.y, size.x, size.y, uvA.x, uvA.y, uvB.x, uvB.y)
+    }
+
+    /**
      * Given a [[ShapeRenderer.ShapeType]] to draw and a Unit block, provides an active [[ShapeRenderer]] with
      * basic parameters setup to simplify the process of drawing primitives to the screen.
      *

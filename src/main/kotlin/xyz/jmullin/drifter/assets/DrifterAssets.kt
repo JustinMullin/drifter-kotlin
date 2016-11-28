@@ -1,12 +1,8 @@
 package xyz.jmullin.drifter.assets
 
-import com.badlogic.gdx.Audio
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.assets.loaders.TextureLoader
 import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
-import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
@@ -14,8 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.reflect.ClassReflection
 import com.badlogic.gdx.utils.reflect.Field
-import xyz.jmullin.drifter.assets.delegates.FontDelegate
-import xyz.jmullin.drifter.assets.delegates.TextureDelegate
+import xyz.jmullin.drifter.assets.delegates.*
 
 /**
  * Used for loading and storing an assets library.
@@ -42,16 +37,26 @@ open class DrifterAssets(atlasName: String? = null) {
     var primaryAtlas: TextureAtlas? = null
     val atlasPath = atlasName?.let { "atlas/$it.atlas" }
 
-    val texture = TextureDelegate(this)
     val font = FontDelegate(this)
+    val music = MusicDelegate(this)
+    val skin = SkinDelegate(this)
+    val sound = SoundDelegate(this)
+    val sprite = SpriteDelegate(this)
+    val textureAtlas = TextureAtlasDelegate(this)
+    val texture = TextureDelegate(this)
 
+    fun font(name: String) = FontDelegate(name, this)
+    fun music(name: String) = MusicDelegate(name, this)
+    fun skin(name: String) = SkinDelegate(name, this)
+    fun sound(name: String) = SoundDelegate(name, this)
+    fun sprite(name: String) = SpriteDelegate(name, this)
+    fun textureAtlas(name: String) = TextureAtlasDelegate(name, this)
     fun texture(name: String) = TextureDelegate(name, this)
-    fun font(name: String) = TextureDelegate(name, this)
 
     /**
      * Retrieves a list of fields from ''this''.
      */
-    fun fields() = ClassReflection.getDeclaredFields(this.javaClass)
+    fun fields() = ClassReflection.getDeclaredFields(this.javaClass).asList()
 
     /**
      * Triggers loading of all assets defined in ''this''.
@@ -62,9 +67,14 @@ open class DrifterAssets(atlasName: String? = null) {
         }
 
         for(field in fields()) {
-            println("Loading ${field.name} / ${field.type}")
-            if(PrefixMap.contains(field.type)) {
-                manager.load(getAssetPath(field), field.type)
+            field.isAccessible = true
+            val delegate = field.get(this)
+
+            if(delegate is AssetDelegate<*>) {
+                if(delegate.assetName == null) {
+                    delegate.assetName = field.name.replace("\$delegate", "")
+                }
+                delegate.loadAsset()
             }
         }
     }
@@ -79,51 +89,11 @@ open class DrifterAssets(atlasName: String? = null) {
     /**
      * Populates the fields of ''this'' with the loaded assets.
      */
-    fun populate() {
+    fun populateAtlas() {
         primaryAtlas = atlasPath.let { path ->
             manager.get(path, TextureAtlas::class.java)
         }
-
-        for(field in fields()) {
-            if(PrefixMap.contains(field.type)) {
-                val path = getAssetPath(field)
-
-                field.isAccessible = true
-                field.set(this, manager.get(path, field.type))
-            }
-        }
-
-        for(field in fields()) {
-            if(field.type == Sprite::class.java) {
-                if(primaryAtlas == null) {
-                    throw DrifterAssetsException("No texture atlas loaded to pull sprite '${field.name}' from. At least one TextureAtlas is required to load Sprites.")
-                }
-
-                field.isAccessible = true
-                val sprite = primaryAtlas?.createSprite(field.name) ?: throw DrifterAssetsException("Failed to load sprite '${field.name}.' Is the sprite present in the texture atlas?")
-                field.set(this, sprite)
-            }
-            /*if(field.type == Animation::class.java) {
-                val pattern = """([a-zA-Z]+)(\d+)""".r
-
-                field.name match {
-                    case pattern(baseName, frames) ->
-                    var sprites = Vector[Sprite]()
-
-                    for(i <- 1 to frames.toInt) {
-                    sprites :+= primaryAtlas.get.createSprite(baseName, i)
-                }
-
-                    field.setAccessible(true)
-                    field.set(this, new Animation(sprites))
-                }
-            }*/
-        }
     }
-
-    fun getAssetPath(field: Field) = PrefixMap[field.type]?.pathPrefix + field.name + PrefixMap[field.type]?.fileSuffix
-
-    fun getAssetPath(t: Class<*>, n: String) = PrefixMap[t]?.pathPrefix + n + PrefixMap[t]?.fileSuffix
 
     fun dispose() {
         primaryAtlas?.dispose()

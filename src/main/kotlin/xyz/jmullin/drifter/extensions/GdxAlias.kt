@@ -1,10 +1,12 @@
 package xyz.jmullin.drifter.extensions
 
 import com.badlogic.gdx.Gdx
+import xyz.jmullin.drifter.application.DrifterGame
 
 /**
  * Short aliases and convenience methods for interacting with Gdx globals.
  */
+fun game() = Gdx.app.applicationListener as DrifterGame
 fun mouseX() = Gdx.input.x
 fun mouseY() = gameH() - Gdx.input.y
 fun mouseV() = V2(mouseX(), mouseY())
