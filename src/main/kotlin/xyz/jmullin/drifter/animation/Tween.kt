@@ -10,14 +10,17 @@ import xyz.jmullin.drifter.entity.Entity
  * @param tick Function to call on each step the tween runs with the alpha progress of the tween.
  * @param done Block to execute when finished with the tween.
  */
-class Tween(duration: Float, val tick: (Float) -> Unit, done: () -> Unit) : Timer(duration, done) {
+class Tween(duration: Float,
+            val tick: (Float) -> Unit,
+            done: () -> Unit,
+            val easing: Easing = Easing.Companion.Linear) : Timer(duration, done) {
     override fun update(delta: Float, e: Entity) {
-        tick(elapsed/duration)
+        tick(easing.apply(elapsed/duration))
 
         elapsed += delta
         if(elapsed >= duration) {
+            tick(easing.apply(1f))
             execute()
-            tick(1f)
         }
     }
 }

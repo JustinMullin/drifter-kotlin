@@ -37,6 +37,7 @@ open class DrifterAssets(atlasName: String? = null) {
     var primaryAtlas: TextureAtlas? = null
     val atlasPath = atlasName?.let { "atlas/$it.atlas" }
 
+    val animation = AnimationDelegate(this)
     val font = FontDelegate(this)
     val music = MusicDelegate(this)
     val skin = SkinDelegate(this)
@@ -45,6 +46,7 @@ open class DrifterAssets(atlasName: String? = null) {
     val textureAtlas = TextureAtlasDelegate(this)
     val texture = TextureDelegate(this)
 
+    fun animation(name: String) = AnimationDelegate(name, this)
     fun font(name: String) = FontDelegate(name, this)
     fun music(name: String) = MusicDelegate(name, this)
     fun skin(name: String) = SkinDelegate(name, this)

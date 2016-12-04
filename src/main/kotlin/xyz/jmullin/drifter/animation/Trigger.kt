@@ -15,31 +15,49 @@ import xyz.jmullin.drifter.entity.Hook
  */
 abstract class Trigger(val f: () -> Unit) : Hook {
     var parent: Entity? = null
+    var previous: Trigger? = null
     var next: Trigger? = null
 
     /**
      * Start the trigger, adding it to the entity in context to run until finished.
+     * This will bubble up the "go" trigger to the first in the chain if multiple
+     * triggers have been combined together using 'then'
      *
      * @return this
      */
-    open fun go(parent: Entity): Trigger {
-        this.parent = parent
-        parent.add(this)
-        parent.let { update(0f, it) }
+    open infix fun go(parent: Entity): Trigger {
+        if(previous == null) {
+            goNow(parent)
+        } else {
+            previous?.go(parent)
+        }
         return this
     }
 
     /**
-     * Method to be called when this trigger has completed.  The expectation is that this
-     * method will be called from the update() method in any trigger implementation.
+     * Starts the trigger immediately, ignoring any previous triggers in the chain, if any.
+     */
+    fun goNow(parent: Entity) {
+        this.parent = parent
+        parent.add(this)
+        parent.let { update(0f, it) }
+    }
+
+    /**
+     * Will be called when this trigger has completed.
      *
      * @return this
      */
     fun execute(): Trigger {
         f()
-        parent?.let { next?.go(it) }
+        parent?.let { next?.goNow(it) }
         return this
     }
+
+    /**
+     * Returns the first trigger in the trigger chain, or this trigger if there are none before it.
+     */
+    fun first(): Trigger = previous?.first() ?: this
 
     /**
      * Returns the last trigger in the trigger chain, or this trigger if there are none after it.
@@ -53,17 +71,25 @@ abstract class Trigger(val f: () -> Unit) : Hook {
      * @return this
      */
     infix fun then(t: Trigger): Trigger {
-        last().next = t
-        return this
+        next = t
+        t.previous = this
+        return t
     }
 
     /**
-     * Utility methods for easily creating the various types of triggers.
+     * Convenience block for expressing events as simple blocks.
      */
-    companion object {
-        fun event(done: () -> Unit) = Event(done)
-        fun delay(duration: Float, done: () -> Unit) = Timer(duration, done)
-        fun tween(duration: Float, tick: (Float) -> Unit) = Tween(duration, tick, {})
-        fun tweenDone(duration: Float, tick: (Float) -> Unit, done: () -> Unit) = Tween(duration, tick, done)
-    }
+    infix fun then(done: () -> Unit) = then(event(done))
 }
+
+infix fun (() -> Unit).then(t: Trigger) = event(this) then(t)
+infix fun (() -> Unit).go(parent: Entity) = event(this) go(parent)
+
+/**
+ * Utility methods for easily creating the various types of triggers.
+ */
+fun event(done: () -> Unit) = Event(done)
+fun delay(duration: Float, done: () -> Unit) = Timer(duration, done)
+fun tween(duration: Float, easing: Easing, tick: (Float) -> Unit) = Tween(duration, tick, {}, easing)
+fun tween(duration: Float, tick: (Float) -> Unit) = Tween(duration, tick, {})
+fun tweenDone(duration: Float, tick: (Float) -> Unit, done: () -> Unit) = Tween(duration, tick, done)

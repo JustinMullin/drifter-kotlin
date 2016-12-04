@@ -24,12 +24,10 @@ abstract class AssetDelegate<T>(var assetName: String?, val assets: DrifterAsset
     }
 
     operator fun getValue(requestor: Any?, property: KProperty<*>): T {
-        return value ?: getAsset()
+        return value ?: (getAsset().apply { value = this })
     }
 
     open fun getAsset(): T {
-        return assets.manager.get(path(safeAssetName()), type).apply {
-            value = this
-        }
+        return assets.manager.get(path(safeAssetName()), type)
     }
 }

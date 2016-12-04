@@ -26,3 +26,6 @@ fun rV(r: Rectangle): Vector2 = rV(r.toV2(), r.size)
 fun rV(v: Vector3) = V3(rFloat(v.x), rFloat(v.y), rFloat(v.z))
 fun rV(a: Vector3, b: Vector3) = V3(rFloat(a.x, b.x), rFloat(a.y, b.y), rFloat(a.z, b.z))
 fun rColor(n: Float, m: Float) = C(rFloat(n, m), rFloat(n, m), rFloat(n, m))
+
+fun ClosedRange<Float>.random() = rFloat(start, endInclusive)
+fun ClosedRange<Int>.random() = rInt(start, endInclusive)

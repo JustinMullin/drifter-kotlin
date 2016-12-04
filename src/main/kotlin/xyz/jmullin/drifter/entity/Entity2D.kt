@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import xyz.jmullin.drifter.extensions.V2
+import xyz.jmullin.drifter.rendering.ShaderSet
+import xyz.jmullin.drifter.rendering.Shaders
 
 /**
  * 2-dimensional entity, contains scaffolding on top of Entity for tracking 2d position and orientation.
@@ -111,4 +113,16 @@ open class Entity2D : EntityContainer2D, Entity() {
      * @return The corresponding world space coordinate.
      */
     fun unproject(v: Vector2) = layer()?.viewport?.unproject(v.cpy()) ?: V2(0, 0)
+
+    /**
+     * Executes a rendering block with the specified shader applied.
+     *
+     * // TODO: figure out a better way to handle shader switches efficiently, perhaps in tandem
+     * // with sorting to order entities at a single depth by shader.
+     */
+    fun withShader(shader: ShaderSet, batch: SpriteBatch, block: () -> Unit) {
+        Shaders.switch(shader, layer(), batch)
+        block()
+        Shaders.switch(Shaders.default, layer(), batch)
+    }
 }

@@ -12,6 +12,7 @@ open class DrifterGame(val name: String, val assets: DrifterAssets) : Game() {
     override fun create() {
         assets.load()
         assets.finishLoading()
+        assets.populateAtlas()
 
         if(devMode) {
             GLProfiler.enable()

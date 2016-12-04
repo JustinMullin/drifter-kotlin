@@ -65,7 +65,7 @@ class Layer2D(override val index: Int, override val viewportSize: Vector2, val a
             batch.projectionMatrix = camera.combined
             batch.begin()
 
-            currentShader.tick()
+            currentShader.update()
 
             renderChildren(batch)
 

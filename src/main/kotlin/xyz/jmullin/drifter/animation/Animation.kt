@@ -12,5 +12,5 @@ data class Animation(val sprites: List<Sprite>) {
      * @param a Alpha value 0-1 to be used in picking a sprite from the sequence.
      * @return The active sprite lerped from the specified alpha and sprite sequence.
      */
-    fun frame(a: Float) = sprites[Math.min(sprites.size-1f, a*sprites.size).toInt()]
+    fun frame(a: Float) = sprites[Math.min(sprites.size-1f, a*sprites.size).toInt() % sprites.size]
 }

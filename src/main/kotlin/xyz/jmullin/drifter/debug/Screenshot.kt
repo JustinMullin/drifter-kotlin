@@ -10,19 +10,19 @@ object Screenshot {
     var suffixIndex = 1
 
     fun save(baseFilename: String) {
-        var filename = baseFilename
+        var file = Gdx.files.external("$baseFilename.png")
 
-        while(Gdx.files.external(filename).exists()) {
+        while(file.exists()) {
             suffixIndex += 1
-            filename = "$baseFilename-$suffixIndex"
+            file = Gdx.files.external("$baseFilename-$suffixIndex.png")
         }
 
         val pixels = ScreenUtils.getFrameBufferPixels(0, 0, Gdx.graphics.backBufferWidth, Gdx.graphics.backBufferHeight, true)
 
         val pixmap = Pixmap(Gdx.graphics.backBufferWidth, Gdx.graphics.backBufferHeight, Pixmap.Format.RGBA8888)
         BufferUtils.copy(pixels, 0, pixmap.pixels, pixels.size)
-        println("Saving screenshot to $filename.png.")
-        PixmapIO.writePNG(Gdx.files.external("$filename.png"), pixmap)
+        log("Saving screenshot to ${file.file().absolutePath}.")
+        PixmapIO.writePNG(file, pixmap)
         pixmap.dispose()
     }
 }

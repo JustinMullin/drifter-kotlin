@@ -2,12 +2,12 @@ version = "0.2-SNAPSHOT"
 group = "xyz.jmullin.drifter"
 
 buildscript {
-    ext.kotlin_version = '1.0.3'
+    ext.kotlinVersion = '1.0.5-2'
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
 
@@ -32,12 +32,15 @@ artifacts {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     compile "com.badlogicgames.gdx:gdx:1.9.4"
     testCompile 'junit:junit:4.11'
-    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "2.7"
+    gradleVersion = "3.1"
+}
+sourceSets {
+    main.java.srcDirs += 'src/main/kotlin'
 }

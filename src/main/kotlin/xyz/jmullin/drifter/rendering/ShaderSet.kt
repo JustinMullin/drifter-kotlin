@@ -2,6 +2,8 @@ package xyz.jmullin.drifter.rendering
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
+import xyz.jmullin.drifter.debug.*
+import xyz.jmullin.drifter.extensions.game
 
 /**
  * Given files to load shader definitions from, compiles and wraps a [[ShaderProgram]] and functionality
@@ -11,8 +13,8 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram
  * @param vertexShaderName Filename of the vertex shader to load.
  */
 open class ShaderSet(val fragmentShaderName: String, val vertexShaderName: String) {
-    val vert = Gdx.files.internal("shader/$vertexShaderName.vert")
-    val frag = Gdx.files.internal("shader/$fragmentShaderName.frag")
+    val vert = Gdx.files.internal("shader/$vertexShaderName.vert")!!
+    val frag = Gdx.files.internal("shader/$fragmentShaderName.frag")!!
 
     /**
      * System ms time at which this shader was last compiled.
@@ -34,22 +36,30 @@ open class ShaderSet(val fragmentShaderName: String, val vertexShaderName: Strin
     fun compile() {
         program = ShaderProgram(vert, frag).apply {
             if(isCompiled) {
-                println("Shader ($frag, $vert) compiled successfully.")
+                log("Shader ($frag, $vert) compiled successfully.")
             } else {
-                println("Shader ($frag, $vert) failed to compile:\n${log.split("\n").map { "\t" + it }.joinToString("\n")}")
+                log("Shader ($frag, $vert) failed to compile:\n${log.split("\n").map { "\t" + it }.joinToString("\n")}")
             }
         }
         lastCompileTime = System.currentTimeMillis()
     }
 
     /**
-     * Reload the shader from source; can be used to do live shader edits at runtime.
+     * Reload the shader from source if the files have been changed since compilation.
      */
     fun refresh() {
-        if (vert.lastModified() > lastCompileTime) {
+        if (vert.lastModified() > lastCompileTime || frag.lastModified() > lastCompileTime) {
             compile()
-            println("Reloaded shader $fragmentShaderName / $vertexShaderName.")
+            log("Reloaded shader $fragmentShaderName / $vertexShaderName.")
         }
+    }
+
+    fun update() {
+        if(game().devMode) {
+            refresh()
+        }
+
+        tick()
     }
 
     /**
