@@ -14,6 +14,7 @@ import xyz.jmullin.drifter.entity.Layer3D
 import xyz.jmullin.drifter.extensions.V2
 import xyz.jmullin.drifter.extensions.gameH
 import xyz.jmullin.drifter.extensions.gameW
+import xyz.jmullin.drifter.rendering.RenderStage
 import xyz.jmullin.drifter.rendering.ShaderSet
 import xyz.jmullin.drifter.rendering.Shaders
 
@@ -33,13 +34,18 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
     /**
      * Create and attach a new Layer2D to this screen.
      *
+     * @param index Rendering index of this layer.
      * @param size Size of the new layer.
      * @param autoCenter If true, auto-center the layer's viewport.
+     * @param stages Collection of render stage tags to use.
      * @param shader If specified, the default shader for rendering this layer.
      * @return The created Layer.
      */
-    fun newLayer2D(index: Int, size: Vector2, autoCenter: Boolean=false, shader: ShaderSet = Shaders.default): Layer2D {
-        val layer = Layer2D(index, size, autoCenter, shader)
+    fun newLayer2D(index: Int,
+                   size: Vector2,
+                   autoCenter: Boolean = false,
+                   stages: Collection<RenderStage> = listOf(RenderStage("default"))): Layer2D {
+        val layer = Layer2D(index, size, autoCenter, stages)
         layers += layer
         return layer
     }
@@ -47,7 +53,9 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
     /**
      * Create and attach a new Layer3D to this screen.
      *
+     * @param index Rendering index of this layer.
      * @param size Size of the new layer.
+     * @param fov Field of view to render this layer at.
      * @return The created Layer.
      */
     fun newLayer3D(index: Int, size: Vector2, fov: Float = 67f, shaderProvider: ShaderProvider = DefaultShaderProvider()): Layer3D {
@@ -79,7 +87,7 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
 
         layers.forEach { it.update(delta) }
 
-        layers.forEach { it.render() }
+        layers.forEach(Layer::render)
     }
 
     /**
@@ -107,7 +115,7 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
      * Dispose screen resources.
      */
     override fun dispose() {
-        layers.forEach { it.dispose() }
+        layers.forEach(Layer::dispose)
         layers = listOf()
     }
 

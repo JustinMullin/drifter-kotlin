@@ -3,6 +3,7 @@ package xyz.jmullin.drifter.entity
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import xyz.jmullin.drifter.application.DrifterInput
+import xyz.jmullin.drifter.rendering.RenderStage
 
 /**
  * General purpose container for Entity2Ds, allows attachment and management of children entities and passes
@@ -46,10 +47,10 @@ interface EntityContainer2D : DrifterInput {
      *
      * @param batch Active SpriteBatch to use in drawing.
      */
-    fun renderChildren(batch: SpriteBatch) {
+    fun renderChildren(stage: RenderStage) {
         children = children.sortedBy { -it.depth }
 
-        children.forEach { it.render(batch) }
+        children.forEach { it.render(stage) }
     }
 
     /**

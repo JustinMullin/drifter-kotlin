@@ -7,12 +7,12 @@ import com.badlogic.gdx.graphics.Texture.TextureWrap
 import com.badlogic.gdx.graphics.Texture.TextureFilter
 import xyz.jmullin.drifter.assets.DrifterAssets
 
-class TextureDelegate(assetName: String?, assets: DrifterAssets): AssetDelegate<Texture>(assetName, assets) {
-    constructor(assets: DrifterAssets) : this(null, assets)
+class TextureDelegate(assetName: String?, val extension: String, assets: DrifterAssets): AssetDelegate<Texture>(assetName, assets) {
+    constructor(assets: DrifterAssets) : this(null, "png", assets)
 
     val parameters = TextureLoader.TextureParameter()
 
-    override fun path(name: String) = "texture/$name.png"
+    override fun path(name: String) = "texture/$name.$extension"
     override val type = Texture::class.java
 
     override fun loadAsset() {

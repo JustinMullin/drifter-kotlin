@@ -15,8 +15,7 @@ object Shaders {
 
     val default = ShaderSet("default", "default")
 
-    fun switch(s: ShaderSet, layer: Layer2D?, batch: SpriteBatch) {
-        layer?.currentShader = s
+    fun switch(s: ShaderSet, batch: SpriteBatch) {
         batch.flush()
         batch.shader = s.program
 

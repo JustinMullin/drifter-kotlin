@@ -85,8 +85,8 @@ interface EntityContainer3D : DrifterInput {
 
     override fun touchDown(v: Vector2, pointer: Int, button: Int): Boolean = mouseEvent(v, { e, v -> e.touchDown(v, button) })
     override fun touchUp(v: Vector2, pointer: Int, button: Int): Boolean = mouseEvent(v, { e, v -> e.touchUp(v, button) })
-    override fun touchDragged(v: Vector2, pointer: Int): Boolean = mouseEvent(v, {e, v -> e.touchDragged(v) })
-    override fun mouseMoved(v: Vector2): Boolean = mouseEvent(v, {e, v -> e.mouseMoved(v) })
+    override fun touchDragged(v: Vector2, pointer: Int): Boolean = mouseEvent(v, Entity3D::touchDragged)
+    override fun mouseMoved(v: Vector2): Boolean = mouseEvent(v, Entity3D::mouseMoved)
 
     override fun keyDown(keycode: Int): Boolean = children.find { it.keyDown(keycode) } != null
     override fun keyUp(keycode: Int): Boolean = children.find { it.keyUp(keycode) } != null

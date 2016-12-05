@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import xyz.jmullin.drifter.extensions.V2
+import xyz.jmullin.drifter.rendering.RenderStage
 import xyz.jmullin.drifter.rendering.ShaderSet
 import xyz.jmullin.drifter.rendering.Shaders
 
@@ -59,8 +60,8 @@ open class Entity2D : EntityContainer2D, Entity() {
      *
      * @param batch Active SpriteBatch to use in rendering.
      */
-    open fun render(batch: SpriteBatch) {
-        renderChildren(batch)
+    open fun render(stage: RenderStage) {
+        renderChildren(stage)
     }
 
     /**
@@ -117,12 +118,12 @@ open class Entity2D : EntityContainer2D, Entity() {
     /**
      * Executes a rendering block with the specified shader applied.
      *
-     * // TODO: figure out a better way to handle shader switches efficiently, perhaps in tandem
-     * // with sorting to order entities at a single depth by shader.
+     * // TODO  Figure out a better way to handle shader switches efficiently, perhaps in tandem
+     * // TODO  with sorting to order entities at a single depth by shader.
      */
     fun withShader(shader: ShaderSet, batch: SpriteBatch, block: () -> Unit) {
-        Shaders.switch(shader, layer(), batch)
+        Shaders.switch(shader, batch)
         block()
-        Shaders.switch(Shaders.default, layer(), batch)
+        Shaders.switch(Shaders.default, batch)
     }
 }

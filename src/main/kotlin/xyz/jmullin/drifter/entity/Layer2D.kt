@@ -6,17 +6,23 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import xyz.jmullin.drifter.extensions.V2
+import xyz.jmullin.drifter.rendering.RenderStage
 import xyz.jmullin.drifter.rendering.ShaderSet
 import xyz.jmullin.drifter.rendering.Shaders
 
 /**
  * 2-dimensional layer implementation.  Contains Entity2Ds.
  *
+ * @param index Rendering index to use for draw ordering.
  * @param viewportSize Size of the viewport to use in drawing the world.
  * @param autoCenter If true, the viewport will be auto-centered in the world.
+ * @param stages Rendering stages to draw with.
  * @param shader If specified, the [[ShaderSet]] to use by default in rendering sprites.
  */
-class Layer2D(override val index: Int, override val viewportSize: Vector2, val autoCenter: Boolean, shader: ShaderSet = Shaders.default) : EntityContainer2D, Layer {
+class Layer2D(override val index: Int,
+              override val viewportSize: Vector2,
+              val autoCenter: Boolean,
+              val stages: Collection<RenderStage>) : EntityContainer2D, Layer {
     // Self reference for containership
     override fun layer() = this
 
@@ -36,17 +42,6 @@ class Layer2D(override val index: Int, override val viewportSize: Vector2, val a
     override var viewport: Viewport? = ExtendViewport(viewportSize.x, viewportSize.y, camera)
 
     /**
-     * Main sprite batch.  This will be passed to children and will generally be used to render
-     * any sprite drawn for this layer.
-     */
-    val batch = SpriteBatch(1000, shader.program)
-
-    /**
-     * Current shader set on the sprite batch.
-     */
-    var currentShader = shader
-
-    /**
      * Given another layer, links the camera and viewport instances for those layers, syncing pan/zoom/etc.
      * This can simplify the setup of two parallel layers.
      *
@@ -62,15 +57,16 @@ class Layer2D(override val index: Int, override val viewportSize: Vector2, val a
      */
     override fun render() {
         if(visible) {
-            batch.projectionMatrix = camera.combined
-            batch.begin()
+            stages.forEach { stage ->
+                stage.batch.projectionMatrix = camera.combined
+                stage.batch.begin()
 
-            currentShader.update()
+                stage.shader.update()
+                renderChildren(stage)
 
-            renderChildren(batch)
-
-            batch.end()
-            batch.flush()
+                stage.batch.end()
+                stage.batch.flush()
+            }
         }
     }
 

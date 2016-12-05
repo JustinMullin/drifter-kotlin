@@ -53,7 +53,7 @@ open class DrifterAssets(atlasName: String? = null) {
     fun sound(name: String) = SoundDelegate(name, this)
     fun sprite(name: String) = SpriteDelegate(name, this)
     fun textureAtlas(name: String) = TextureAtlasDelegate(name, this)
-    fun texture(name: String) = TextureDelegate(name, this)
+    fun texture(name: String, extension: String="png") = TextureDelegate(name, extension, this)
 
     /**
      * Retrieves a list of fields from ''this''.

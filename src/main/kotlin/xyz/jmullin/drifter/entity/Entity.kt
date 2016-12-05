@@ -42,6 +42,6 @@ open class Entity {
      */
     open fun update(delta: Float) {
         hooks.forEach { it.update(delta, this) }
-        hooks = hooks.filter { it.running }.toSet()
+        hooks = hooks.filter(Hook::running).toSet()
     }
 }
