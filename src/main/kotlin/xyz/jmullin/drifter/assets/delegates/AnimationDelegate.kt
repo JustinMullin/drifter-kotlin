@@ -1,6 +1,5 @@
 package xyz.jmullin.drifter.assets.delegates
 
-import com.badlogic.gdx.graphics.g2d.Sprite
 import xyz.jmullin.drifter.animation.Animation
 import xyz.jmullin.drifter.assets.DrifterAssets
 import xyz.jmullin.drifter.assets.DrifterAssetsException

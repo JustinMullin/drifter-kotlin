@@ -7,9 +7,9 @@ import com.badlogic.gdx.graphics.Color
  */
 
 fun C(r: Float, g: Float, b: Float) = Color(r, g, b, 1f)
-fun Ca(r: Float, g: Float, b: Float, a: Float) = Color(r, g, b, a)
-fun Ca(c: Color, a: Float) = Color(c.r, c.g, c.b, a)
-fun Ci(i: Float) = Color(i, i, i, 1f)
+fun C(r: Float, g: Float, b: Float, a: Float) = Color(r, g, b, a)
+fun C(c: Color, a: Float) = Color(c.r, c.g, c.b, a)
+fun C(i: Float) = Color(i, i, i, 1f)
 
 operator fun Color.plus(o: Color) = cpy().add(o.alpha(0f))
 operator fun Color.plus(n: Float) = cpy().add(n, n, n, 0f)

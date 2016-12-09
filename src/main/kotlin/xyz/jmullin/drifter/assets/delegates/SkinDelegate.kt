@@ -1,6 +1,5 @@
 package xyz.jmullin.drifter.assets.delegates
 
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import xyz.jmullin.drifter.assets.DrifterAssets
 

@@ -3,8 +3,8 @@ package xyz.jmullin.drifter.assets.delegates
 import com.badlogic.gdx.assets.loaders.TextureLoader
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.Texture.TextureWrap
 import com.badlogic.gdx.graphics.Texture.TextureFilter
+import com.badlogic.gdx.graphics.Texture.TextureWrap
 import xyz.jmullin.drifter.assets.DrifterAssets
 
 class TextureDelegate(assetName: String?, val extension: String, assets: DrifterAssets): AssetDelegate<Texture>(assetName, assets) {

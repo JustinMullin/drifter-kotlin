@@ -1,6 +1,5 @@
 package xyz.jmullin.drifter.entity
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import xyz.jmullin.drifter.application.DrifterInput
 import xyz.jmullin.drifter.rendering.RenderStage

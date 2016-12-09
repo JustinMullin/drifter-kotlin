@@ -1,7 +1,6 @@
 package xyz.jmullin.drifter.assets.delegates
 
 import com.badlogic.gdx.audio.Sound
-import com.badlogic.gdx.graphics.Texture
 import xyz.jmullin.drifter.assets.DrifterAssets
 
 class SoundDelegate(assetName: String?, assets: DrifterAssets): AssetDelegate<Sound>(assetName, assets) {

@@ -5,11 +5,9 @@ import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
-import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.reflect.ClassReflection
-import com.badlogic.gdx.utils.reflect.Field
 import xyz.jmullin.drifter.assets.delegates.*
 
 /**
@@ -35,7 +33,7 @@ open class DrifterAssets(atlasName: String? = null) {
     val manager = AssetManager()
 
     var primaryAtlas: TextureAtlas? = null
-    val atlasPath = atlasName?.let { "atlas/$it.atlas" }
+    private val atlasPath = atlasName?.let { "atlas/$it.atlas" }
 
     val animation = AnimationDelegate(this)
     val font = FontDelegate(this)
@@ -58,7 +56,7 @@ open class DrifterAssets(atlasName: String? = null) {
     /**
      * Retrieves a list of fields from ''this''.
      */
-    fun fields() = ClassReflection.getDeclaredFields(this.javaClass).asList()
+    private fun fields() = ClassReflection.getDeclaredFields(this.javaClass).asList()
 
     /**
      * Triggers loading of all assets defined in ''this''.

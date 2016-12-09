@@ -1,14 +1,13 @@
 package xyz.jmullin.drifter.entity
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
-import xyz.jmullin.drifter.extensions.V2
-import xyz.jmullin.drifter.rendering.RenderStage
-import xyz.jmullin.drifter.rendering.ShaderSet
-import xyz.jmullin.drifter.rendering.Shaders
+import xyz.jmullin.drifter.extensions.*
+import xyz.jmullin.drifter.rendering.*
 
 /**
  * 2-dimensional layer implementation.  Contains Entity2Ds.
@@ -58,16 +57,64 @@ class Layer2D(override val index: Int,
     override fun render() {
         if(visible) {
             stages.forEach { stage ->
-                stage.batch.projectionMatrix = camera.combined
-                stage.batch.begin()
-
-                stage.shader.update()
-                renderChildren(stage)
-
-                stage.batch.end()
-                stage.batch.flush()
+                when(stage) {
+                    is BlitStage -> renderBlitStage(stage)
+                    is BufferStage -> renderBufferStage(stage)
+                    is DrawStage -> renderDrawStage(stage)
+                }
             }
         }
+    }
+
+    fun renderBlitStage(stage: BlitStage) {
+        stage.batch.begin()
+        stage.shader.tick()
+        stage.shader.update()
+
+        stage.sources.forEachIndexed { i, source ->
+            val unit = stage.sources.size - i
+            source.buffer.colorBufferTexture?.bind(unit)
+            stage.shader.program?.setUniformi(source.tag, unit)
+        }
+        Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0)
+
+        stage.batch.sprite(Draw.fill, V2(0f, gameH()), gameSize() * V2(1f, -1f))
+
+        stage.batch.end()
+    }
+
+    fun renderBufferStage(stage: BufferStage) {
+        camera.setToOrtho(false, stage.buffer.width.toFloat(), stage.buffer.height.toFloat())
+        stage.batch.projectionMatrix = camera.combined
+        stage.buffer.begin()
+
+        Gdx.gl.glClearColor(stage.backgroundColor.r, stage.backgroundColor.g, stage.backgroundColor.b, stage.backgroundColor.a)
+        Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
+        Gdx.gl20.glEnable(GL20.GL_BLEND)
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
+
+        stage.batch.begin()
+        stage.shader.tick()
+        stage.shader.update()
+
+        renderChildren(stage)
+
+        stage.batch.end()
+        stage.batch.flush()
+        stage.buffer.end()
+        camera.setToOrtho(false, viewportSize.x, viewportSize.y)
+    }
+
+    fun renderDrawStage(stage: DrawStage) {
+        stage.batch.projectionMatrix = camera.combined
+        stage.batch.begin()
+        stage.shader.tick()
+        stage.shader.update()
+
+        renderChildren(stage)
+
+        stage.batch.end()
+        stage.batch.flush()
     }
 
     /**

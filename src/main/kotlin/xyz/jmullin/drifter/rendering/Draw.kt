@@ -19,12 +19,12 @@ object Draw {
     /**
      * Shared GlyphLayout for calculating text display.  Very not thread safe!
      */
-    private var layout = GlyphLayout()
+    internal var layout = GlyphLayout()
 
     /**
      * Shared PolygonSpriteBatch for rendering polygons.
      */
-    private val polygonBatch = PolygonSpriteBatch(2000, Shaders.default.program)
+    internal val polygonBatch = PolygonSpriteBatch(2000, Shaders.default.program)
 
     /**
      * Simple 1px white fill sprite for drawing filled regions.
@@ -35,105 +35,105 @@ object Draw {
         pixmap.fill()
         Sprite(Texture(pixmap))
     }
+}
 
-    /**
-     * Draw a sprite at a given position and size.
-     */
-    fun sprite(sprite: Sprite, v: Vector2, size: Vector2, batch: Batch) {
-        sprite.setBounds(v.x, v.y, size.x, size.y)
-        sprite.draw(batch)
-    }
+/**
+ * Draw a sprite at a given position and size.
+ */
+fun SpriteBatch.sprite(sprite: Sprite, v: Vector2, size: Vector2) {
+    sprite.setBounds(v.x, v.y, size.x, size.y)
+    sprite.draw(this)
+}
 
-    /**
-     * Draw a nine-patch at a given position and size.
-     */
-    fun sprite(patch: NinePatch, v: Vector2, size: Vector2, batch: Batch) {
-        patch.draw(batch, v.x, v.y, size.x, size.y)
-    }
+/**
+ * Draw a nine-patch at a given position and size.
+ */
+fun SpriteBatch.sprite(patch: NinePatch, v: Vector2, size: Vector2) {
+    patch.draw(this, v.x, v.y, size.x, size.y)
+}
 
-    /**
-     * Draw a texture at a given position and size.
-     */
-    fun texture(texture: Texture, v: Vector2, size: Vector2, batch: Batch) {
-        batch.draw(texture, v.x, v.y, size.x, size.y)
-    }
+/**
+ * Draw a texture at a given position and size.
+ */
+fun SpriteBatch.texture(texture: Texture, v: Vector2, size: Vector2) {
+    draw(texture, v.x, v.y, size.x, size.y)
+}
 
-    /**
-     * Draw a texture at a given position and size.
-     */
-    fun texture(texture: Texture, v: Vector2, size: Vector2, uvA: Vector2, uvB: Vector2, batch: Batch) {
-        batch.draw(texture, v.x, v.y, size.x, size.y, uvA.x, uvA.y, uvB.x, uvB.y)
-    }
+/**
+ * Draw a texture at a given position and size.
+ */
+fun SpriteBatch.texture(texture: Texture, v: Vector2, size: Vector2, uvA: Vector2, uvB: Vector2) {
+    draw(texture, v.x, v.y, size.x, size.y, uvA.x, uvA.y, uvB.x, uvB.y)
+}
 
-    /**
-     * Given a [[ShapeRenderer.ShapeType]] to draw and a Unit block, provides an active [[ShapeRenderer]] with
-     * basic parameters setup to simplify the process of drawing primitives to the screen.
-     *
-     * '''Example:'''
-     *
-     * {{{
-     * Draw.shapes(ShapeType.Filled) { r ->
-     *   r.rect(0, 0, 100, 100)
-     * }
-     * }}}
-     */
-    fun shapes(kind: ShapeRenderer.ShapeType, shader: ShaderProgram?= Shaders.default.program, f: (ShapeRenderer) -> Unit, layer: Layer2D, batch: Batch) {
-        batch.end()
-        Gdx.gl.glEnable(GL20.GL_BLEND)
-        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
-        val r = ShapeRenderer(5000, shader)
-        r.begin(kind)
-        r.projectionMatrix = layer.camera.combined
+/**
+ * Given a [[ShapeRenderer.ShapeType]] to draw and a Unit block, provides an active [[ShapeRenderer]] with
+ * basic parameters setup to simplify the process of drawing primitives to the screen.
+ *
+ * '''Example:'''
+ *
+ * {{{
+ * Draw.shapes(ShapeType.Filled) { r ->
+ *   r.rect(0, 0, 100, 100)
+ * }
+ * }}}
+ */
+fun SpriteBatch.shapes(kind: ShapeRenderer.ShapeType, shader: ShaderProgram?= Shaders.default.program, f: (ShapeRenderer) -> Unit, layer: Layer2D) {
+    end()
+    Gdx.gl.glEnable(GL20.GL_BLEND)
+    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
+    val r = ShapeRenderer(5000, shader)
+    r.begin(kind)
+    r.projectionMatrix = layer.camera.combined
 
-        f(r)
+    f(r)
 
-        r.end()
-        r.dispose()
-        Gdx.gl.glDisable(GL20.GL_BLEND)
-        batch.begin()
-    }
+    r.end()
+    r.dispose()
+    Gdx.gl.glDisable(GL20.GL_BLEND)
+    begin()
+}
 
-    /**
-     * Draw a string with the given location, font and no alignment.
-     */
-    fun string(str: String, v: Vector2, font: BitmapFont, batch: Batch) {
-        layout.setText(font, str)
-        font.draw(batch, str, v.x, v.y)
-    }
+/**
+ * Draw a string with the given location, font and no alignment.
+ */
+fun SpriteBatch.string(str: String, v: Vector2, font: BitmapFont) {
+    Draw.layout.setText(font, str)
+    font.draw(this, str, v.x, v.y)
+}
 
-    /**
-     * Draw a string with the given location, font and alignment.
-     */
-    fun string(str: String, v: Vector2, font: BitmapFont, align: Vector2, batch: Batch) {
-        layout.setText(font, str)
-        font.draw(batch, str, v.x + (align.x - 1) * layout.width * 0.5f, v.y + (align.y + 1) * layout.height * 0.5f)
-    }
+/**
+ * Draw a string with the given location, font and alignment.
+ */
+fun SpriteBatch.string(str: String, v: Vector2, font: BitmapFont, align: Vector2) {
+    Draw.layout.setText(font, str)
+    font.draw(this, str, v.x + (align.x - 1) * Draw.layout.width * 0.5f, v.y + (align.y + 1) * Draw.layout.height * 0.5f)
+}
 
-    /**
-     * Draw a string with the given location, font and alignment, wrapped to the specified width.
-     */
-    fun stringWrapped(str: String, v: Vector2, width: Float, font: BitmapFont, align: Vector2, batch: Batch) {
-        layout.setText(font, str, font.color, width, Align.center, true)
-        font.draw(batch, str, v.x - layout.width / 2f, v.y + (align.y + 1) * layout.height * 0.5f)
-    }
+/**
+ * Draw a string with the given location, font and alignment, wrapped to the specified width.
+ */
+fun SpriteBatch.stringWrapped(str: String, v: Vector2, width: Float, font: BitmapFont, align: Vector2) {
+    Draw.layout.setText(font, str, font.color, width, Align.center, true)
+    font.draw(this, str, v.x - Draw.layout.width / 2f, v.y + (align.y + 1) * Draw.layout.height * 0.5f)
+}
 
-    /**
-     * Draw a string with the given location, font and alignment, wrapped to the specified width.
-     */
-    fun stringWrapped(str: String, v: Vector2, start: Int, end: Int, width: Float, font: BitmapFont, hAlign: Int, batch: Batch) {
-        layout.setText(font, str, start, end, font.color, width, hAlign, true, null)
-        font.draw(batch, layout, v.x, v.y)
-    }
+/**
+ * Draw a string with the given location, font and alignment, wrapped to the specified width.
+ */
+fun SpriteBatch.stringWrapped(str: String, v: Vector2, start: Int, end: Int, width: Float, font: BitmapFont, hAlign: Int) {
+    Draw.layout.setText(font, str, start, end, font.color, width, hAlign, true, null)
+    font.draw(this, Draw.layout, v.x, v.y)
+}
 
-    /**
-     * Set up a polygon renderer for drawing filled polygons.
-     */
-    fun polygons(layer: Layer2D?, f: (PolygonRenderer) -> Unit) {
-        polygonBatch.begin()
-        polygonBatch.projectionMatrix = layer?.camera?.projection
+/**
+ * Set up a polygon renderer for drawing filled polygons.
+ */
+fun polygons(layer: Layer2D?, f: (PolygonRenderer) -> Unit) {
+    Draw.polygonBatch.begin()
+    Draw.polygonBatch.projectionMatrix = layer?.camera?.projection
 
-        f(PolygonRenderer(polygonBatch))
+    f(PolygonRenderer(Draw.polygonBatch))
 
-        polygonBatch.end()
-    }
+    Draw.polygonBatch.end()
 }

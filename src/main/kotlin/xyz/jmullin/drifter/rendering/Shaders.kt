@@ -2,7 +2,6 @@ package xyz.jmullin.drifter.rendering
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
-import xyz.jmullin.drifter.entity.Layer2D
 
 /**
  * Convenience object for shader switching.  Use switch in the context of a Layer2D to update
@@ -19,8 +18,16 @@ object Shaders {
         batch.flush()
         batch.shader = s.program
 
-        s.refresh()
         s.init()
         s.update()
+    }
+}
+
+fun shader(fragShader: String, vertShader: String, tick: (ShaderProgram) -> Unit = {}): ShaderSet {
+    return object : ShaderSet(fragShader, vertShader) {
+        override fun tick() {
+            program?.let { tick(it) }
+            super.tick()
+        }
     }
 }

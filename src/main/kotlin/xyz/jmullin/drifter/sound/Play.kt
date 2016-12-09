@@ -1,7 +1,6 @@
 package xyz.jmullin.drifter.sound
 
 import com.badlogic.gdx.audio.Music
-import com.badlogic.gdx.math.Vector2
 import xyz.jmullin.drifter.extensions.random
 import com.badlogic.gdx.audio.Sound as GdxSound
 

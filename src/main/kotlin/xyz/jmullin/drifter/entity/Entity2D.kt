@@ -58,7 +58,7 @@ open class Entity2D : EntityContainer2D, Entity() {
     /**
      * Called by the parent container on each frame to render this entity.
      *
-     * @param batch Active SpriteBatch to use in rendering.
+     * @param stage Active render stage to draw to.
      */
     open fun render(stage: RenderStage) {
         renderChildren(stage)
@@ -69,7 +69,7 @@ open class Entity2D : EntityContainer2D, Entity() {
      *
      * @param delta Time in seconds elapsed since the last update tick.
      */
-    open override fun update(delta: Float) {
+    override fun update(delta: Float) {
         updateChildren(delta)
 
         super.update(delta)

@@ -1,6 +1,7 @@
 package xyz.jmullin.drifter.extensions
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.math.Vector2
 import xyz.jmullin.drifter.application.DrifterGame
 
 /**

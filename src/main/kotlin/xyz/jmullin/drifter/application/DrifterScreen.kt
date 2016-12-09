@@ -14,9 +14,8 @@ import xyz.jmullin.drifter.entity.Layer3D
 import xyz.jmullin.drifter.extensions.V2
 import xyz.jmullin.drifter.extensions.gameH
 import xyz.jmullin.drifter.extensions.gameW
+import xyz.jmullin.drifter.rendering.BlitStage
 import xyz.jmullin.drifter.rendering.RenderStage
-import xyz.jmullin.drifter.rendering.ShaderSet
-import xyz.jmullin.drifter.rendering.Shaders
 
 /**
  * Screen implementation for use with Drifter, facilitates creation and management of layers for
@@ -44,9 +43,17 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
     fun newLayer2D(index: Int,
                    size: Vector2,
                    autoCenter: Boolean = false,
-                   stages: Collection<RenderStage> = listOf(RenderStage("default"))): Layer2D {
+                   rootStage: RenderStage,
+                   init: Layer2D.() -> Unit = {}): Layer2D {
+        val stages = if(rootStage is BlitStage) {
+            rootStage.sources + rootStage
+        } else {
+            listOf(rootStage)
+        }
+
         val layer = Layer2D(index, size, autoCenter, stages)
         layers += layer
+        init(layer)
         return layer
     }
 
