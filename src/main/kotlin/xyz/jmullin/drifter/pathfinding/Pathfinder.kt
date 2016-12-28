@@ -6,7 +6,7 @@ import java.util.*
  * A generic A* implementation for simple pathfinding in arbitrary discrete spaces.
  */
 @Suppress("UNUSED_PARAMETER", "UNUSED_VARIABLE")
-class Pathfinder<State>(
+open class Pathfinder<State>(
         val heuristic: (State, State) -> Float,
         val neighbors: (State) -> Collection<State>,
         val cost: (State, State) -> Float) {
@@ -28,7 +28,7 @@ class Pathfinder<State>(
             val (c, p) = frontier.poll()
             val current = c!!
 
-            if(current.equals(goal)) break
+            if(current == goal) break
 
             for (next in neighbors(current)) {
                 val newCost = costSoFar[current]!! + cost(current, next)

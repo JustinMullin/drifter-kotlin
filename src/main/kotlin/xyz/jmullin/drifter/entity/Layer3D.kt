@@ -1,5 +1,6 @@
 package xyz.jmullin.drifter.entity
 
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.ModelBatch
@@ -16,7 +17,10 @@ import xyz.jmullin.drifter.extensions.V3
  *
  * @param viewportSize Size of the viewport to use in drawing the world.
  */
-open class Layer3D(override val index: Int, override val viewportSize: Vector2, fov: Float = 67f, shaderProvider: ShaderProvider = DefaultShaderProvider()) : EntityContainer3D, Layer {
+open class Layer3D(override val index: Int,
+                   override final val viewportSize: Vector2,
+                   shaderProvider: ShaderProvider = DefaultShaderProvider(),
+                   cameraProvider: (Vector2) -> Camera = { size -> PerspectiveCamera(67f, size.x, size.y) }) : EntityContainer3D, Layer {
     override var children = emptyList<Entity3D>()
     override var mouseLocked: Vector2? = null
 
@@ -29,7 +33,7 @@ open class Layer3D(override val index: Int, override val viewportSize: Vector2, 
     /**
      * Camera used to render the world.
      */
-    var camera = PerspectiveCamera(fov, viewportSize.x, viewportSize.y)
+    var camera: Camera = cameraProvider(viewportSize)
 
     /**
      * Viewport for world-space rendering.

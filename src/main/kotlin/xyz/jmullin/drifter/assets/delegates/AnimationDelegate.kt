@@ -25,7 +25,11 @@ class AnimationDelegate(assetName: String?, assets: DrifterAssets) : AssetDelega
             val regionNames = atlas.regions?.map { it.name } ?: throw DrifterAssetsException("No regions for texture atlas!")
             val frames = regionNames.map { name ->
                 val matches = "(.*)(\\d+)".toRegex().matchEntire(name)
-                matches?.groupValues?.getOrElse(2, { null })?.toInt()
+                if(name.startsWith(safeAssetName())) {
+                    matches?.groupValues?.getOrElse(2, { null })?.toInt()
+                } else {
+                    null
+                }
             }.filterNotNull().sorted()
             Animation(frames.map { atlas.createSprite(safeAssetName() + it) })
         } ?: throw DrifterAssetsException("Failed to load sprite '${safeAssetName()}.' Is the sprite present in the texture atlas?")

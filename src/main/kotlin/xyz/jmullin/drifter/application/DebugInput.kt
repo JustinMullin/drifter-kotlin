@@ -7,7 +7,7 @@ import xyz.jmullin.drifter.extensions.game
 
 class DebugInput() : DrifterInput {
     override fun keyDown(keycode: Int): Boolean {
-        when (keycode) {
+        if(game().devMode) when (keycode) {
             Input.Keys.ESCAPE -> Gdx.app.exit()
             Input.Keys.F12 -> Screenshot.save("screenshots/${game().name}")
         }

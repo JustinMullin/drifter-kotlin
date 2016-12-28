@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Align
 import xyz.jmullin.drifter.entity.Layer2D
+import xyz.jmullin.drifter.extensions.V2
 
 /**
  * Convenience methods for drawing things succinctly.
@@ -64,6 +65,34 @@ fun SpriteBatch.texture(texture: Texture, v: Vector2, size: Vector2) {
  */
 fun SpriteBatch.texture(texture: Texture, v: Vector2, size: Vector2, uvA: Vector2, uvB: Vector2) {
     draw(texture, v.x, v.y, size.x, size.y, uvA.x, uvA.y, uvB.x, uvB.y)
+}
+
+fun SpriteBatch.quad(sprite: Sprite, a: Vector2, b: Vector2, c: Vector2, d: Vector2, color: Color = Color.WHITE) {
+    val u = sprite.u
+    val v = sprite.v
+    val u2 = sprite.u2
+    val v2 = sprite.v2
+
+    quad(sprite.texture, a, b, c, d, V2(u, v), V2(u, v2), V2(u2, v2), V2(u2, v), color)
+}
+
+fun SpriteBatch.quad(texture: Texture,
+                     a: Vector2, b: Vector2, c: Vector2, d: Vector2,
+                     uvA: Vector2, uvB: Vector2, uvC: Vector2, uvD: Vector2,
+                     color: Color = Color.WHITE) {
+    val col = color.toFloatBits()
+
+    val vertices = floatArrayOf(
+        a.x, a.y, col, uvA.x, uvA.y,
+        b.x, b.y, col, uvB.x, uvB.y,
+        d.x, d.y, col, uvD.x, uvD.y,
+        a.x, a.y, col, uvA.x, uvA.y,
+        d.x, d.y, col, uvD.x, uvD.y,
+        b.x, b.y, col, uvB.x, uvB.y,
+        c.x, c.y, col, uvC.x, uvC.y,
+        d.x, d.y, col, uvD.x, uvD.y)
+
+    draw(texture, vertices, 0, vertices.size)
 }
 
 /**

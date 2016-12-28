@@ -66,7 +66,7 @@ open class Entity3D : EntityContainer3D, Entity() {
      *
      * @param container The new parent container.
      */
-    fun create(container: EntityContainer3D) {
+    open fun create(container: EntityContainer3D) {
         parent = container
     }
 

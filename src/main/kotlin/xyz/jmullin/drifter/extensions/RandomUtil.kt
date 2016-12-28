@@ -14,10 +14,11 @@ import java.util.*
 val r = Random()
 
 fun probability(p: Double) = r.nextDouble() <= p
+fun probability(p: Float) = r.nextFloat() <= p
 fun rInt(n: Int) = r.nextInt(n)
 fun rInt(n:Int, m:Int) = if(n == m) n else n+r.nextInt(m-n)
 fun rFloat(n: Float) = r.nextFloat()*n
-fun rFloat(n: Float, m: Float) = n+r.nextFloat()*(m-n)
+fun rFloat(n: Float, m: Float): Float = n+r.nextFloat()*(m-n)
 fun <T> rElement(s: Iterable<T>) = s.toList().let { it[rInt(it.size)] }
 
 fun rV(v: Vector2) = V2(rFloat(v.x), rFloat(v.y))

@@ -67,8 +67,8 @@ class Layer2D(override val index: Int,
     }
 
     fun renderBlitStage(stage: BlitStage) {
+        stage.batch.shader = stage.shader.program
         stage.batch.begin()
-        stage.shader.tick()
         stage.shader.update()
 
         stage.sources.forEachIndexed { i, source ->
@@ -84,7 +84,12 @@ class Layer2D(override val index: Int,
     }
 
     fun renderBufferStage(stage: BufferStage) {
-        camera.setToOrtho(false, stage.buffer.width.toFloat(), stage.buffer.height.toFloat())
+        val overdrawAspect = stage.buffer.size / gameSize()
+        val newViewSize = viewportSize * overdrawAspect
+        camera.setToOrtho(false, newViewSize.x, newViewSize.y)
+        camera.translate(viewportSize * (-overdrawAspect + 1f) * 0.5f)
+        viewport?.setWorldSize(newViewSize.x, newViewSize.y)
+        camera.update()
         stage.batch.projectionMatrix = camera.combined
         stage.buffer.begin()
 
@@ -93,8 +98,8 @@ class Layer2D(override val index: Int,
         Gdx.gl20.glEnable(GL20.GL_BLEND)
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
 
+        stage.batch.shader = stage.shader.program
         stage.batch.begin()
-        stage.shader.tick()
         stage.shader.update()
 
         renderChildren(stage)
@@ -102,13 +107,14 @@ class Layer2D(override val index: Int,
         stage.batch.end()
         stage.batch.flush()
         stage.buffer.end()
+        viewport?.setWorldSize(viewportSize.x, viewportSize.y)
         camera.setToOrtho(false, viewportSize.x, viewportSize.y)
     }
 
     fun renderDrawStage(stage: DrawStage) {
         stage.batch.projectionMatrix = camera.combined
+        stage.batch.shader = stage.shader.program
         stage.batch.begin()
-        stage.shader.tick()
         stage.shader.update()
 
         renderChildren(stage)

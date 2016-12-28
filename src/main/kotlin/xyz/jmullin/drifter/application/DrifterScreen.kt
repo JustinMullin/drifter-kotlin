@@ -66,7 +66,7 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
      * @return The created Layer.
      */
     fun newLayer3D(index: Int, size: Vector2, fov: Float = 67f, shaderProvider: ShaderProvider = DefaultShaderProvider()): Layer3D {
-        val layer = Layer3D(index, size, fov, shaderProvider)
+        val layer = Layer3D(index, size, shaderProvider)
         layers += layer
         return layer
     }
@@ -111,7 +111,7 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
      * Initializes the screen when shown.
      */
     override fun show() {
-        resize(gameW(), gameH())
+        //resize(gameW(), gameH())
 
         val inputs = (layers + this).reversed().toTypedArray() + DebugInput()
 

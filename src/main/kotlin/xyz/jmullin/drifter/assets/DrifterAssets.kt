@@ -35,14 +35,15 @@ open class DrifterAssets(atlasName: String? = null) {
     var primaryAtlas: TextureAtlas? = null
     private val atlasPath = atlasName?.let { "atlas/$it.atlas" }
 
-    val animation = AnimationDelegate(this)
-    val font = FontDelegate(this)
-    val music = MusicDelegate(this)
-    val skin = SkinDelegate(this)
-    val sound = SoundDelegate(this)
-    val sprite = SpriteDelegate(this)
-    val textureAtlas = TextureAtlasDelegate(this)
-    val texture = TextureDelegate(this)
+    val animation: AnimationDelegate get() = AnimationDelegate(this)
+    val font: FontDelegate get() = FontDelegate(this)
+    val music: MusicDelegate get() = MusicDelegate(this)
+    val skin: SkinDelegate get() = SkinDelegate(this)
+    val sound: SoundDelegate get() = SoundDelegate(this)
+    val sprite: SpriteDelegate get() = SpriteDelegate(this)
+    val pixmap: PixmapDelegate get() = PixmapDelegate(this)
+    val textureAtlas: TextureAtlasDelegate get() = TextureAtlasDelegate(this)
+    val texture: TextureDelegate get() = TextureDelegate(this)
 
     fun animation(name: String) = AnimationDelegate(name, this)
     fun font(name: String) = FontDelegate(name, this)
@@ -50,6 +51,7 @@ open class DrifterAssets(atlasName: String? = null) {
     fun skin(name: String) = SkinDelegate(name, this)
     fun sound(name: String) = SoundDelegate(name, this)
     fun sprite(name: String) = SpriteDelegate(name, this)
+    fun pixmap(name: String) = PixmapDelegate(name, this)
     fun textureAtlas(name: String) = TextureAtlasDelegate(name, this)
     fun texture(name: String, extension: String="png") = TextureDelegate(name, extension, this)
 
@@ -90,6 +92,7 @@ open class DrifterAssets(atlasName: String? = null) {
      * Populates the fields of ''this'' with the loaded assets.
      */
     fun populateAtlas() {
+        println("POPULATING ATLAS from $atlasPath")
         primaryAtlas = atlasPath.let { path ->
             manager.get(path, TextureAtlas::class.java)
         }
