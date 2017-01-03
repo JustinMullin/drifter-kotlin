@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.GL20.GL_BACK
 import com.badlogic.gdx.graphics.GL20.GL_LEQUAL
+import com.badlogic.gdx.graphics.VertexAttribute
 import com.badlogic.gdx.graphics.g3d.Attributes
 import com.badlogic.gdx.graphics.g3d.Renderable
 import com.badlogic.gdx.graphics.g3d.Shader
@@ -25,7 +26,7 @@ import com.badlogic.gdx.graphics.g3d.shaders.BaseShader.Setter as SetterGDX
 /**
  * Basic 3D LibGDX shader implementation in Scala, based on [[DefaultShader]].
  */
-open class DrifterShader3D(open var renderable: Renderable,
+open class DrifterShader3D(var renderable: Renderable,
                            val vertexShader: String? = null,
                            val fragmentShader: String? = null) : BaseShader() {
 
@@ -61,6 +62,7 @@ open class DrifterShader3D(open var renderable: Renderable,
         register(emissiveColor)
         register(emissiveTexture)
         register(reflectionColor)
+        register(ambientColor)
         register(normalTexture)
         register(environmentCubemap)
     }
@@ -93,12 +95,12 @@ open class DrifterShader3D(open var renderable: Renderable,
     fun <T : Any> uniform(name: String, f: (BaseShader, Renderable?, Attributes?) -> T) = register(setter(name, f, true))
     fun <T : Any> uniformLocal(name: String, f: (BaseShader, Renderable?, Attributes?) -> T) = register(setter(name, f, false))
 
-    fun <T : Any> uniform(name: String, v: T) = register(setter(name, { s, r, a -> v }, true))
-    fun <T : Any> uniformLocal(name: String, v: T) = register(setter(name, { s, r, a -> v }, false))
+    fun <T : Any> uniformSimple(name: String, v: () -> T) = register(setter(name, { s, r, a -> v() }, true))
+    fun <T : Any> uniformSimpleLocal(name: String, v: () -> T) = register(setter(name, { s, r, a -> v() }, false))
 
     companion object DrifterShader3D {
         val cameraProjection = setter("cameraProjection", { s: BaseShader, r: Renderable?, a: Attributes? ->
-            s.camera.projection }, true)
+            println("HERE"); s.camera.projection }, true)
 
         val cameraView = setter("cameraView", { s: BaseShader, r: Renderable?, a: Attributes? ->
             s.camera.view }, true)
@@ -150,6 +152,9 @@ open class DrifterShader3D(open var renderable: Renderable,
 
         val reflectionColor = setter<Color>("material.reflectionColor", { s: BaseShader, r: Renderable?, a: Attributes? ->
             a?.get(ColorAttribute.Reflection).let { a -> when(a) { is ColorAttribute -> a.color; else -> Color.WHITE } } }, false)
+
+        val ambientColor = setter<Color>("material.ambientColor", { s: BaseShader, r: Renderable?, a: Attributes? ->
+            a?.get(ColorAttribute.Ambient).let { a -> when(a) { is ColorAttribute -> a.color; else -> Color.BLACK } } }, false)
 
         val normalTexture = setter("material.normalTexture", { s: BaseShader, r: Renderable?, a: Attributes? ->
             s.context.textureBinder.bind(a?.get(TextureAttribute.Normal).let { a -> when(a) { is TextureAttribute -> a.textureDescription; else -> null } }) }, false)

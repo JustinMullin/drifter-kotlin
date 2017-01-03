@@ -55,6 +55,9 @@ fun Float.nextUp(): Float = Math.nextUp(this)
 fun Float.scalb(scaleFactor: Int): Float = Math.scalb(this, scaleFactor)
 fun Float.clamp(min: Float, max: Float): Float = Math.max(min, Math.min(this, max))
 fun Float.fEq(o: Float): Boolean = Math.abs(this-o) <= Epsilon
+fun Float.lerp(b: Float, alpha: Float): Float = this + (b-this) * alpha
+fun Float.lerpRelative(b: Float, c: Float): Float = FloatMath.lerp(this, b, FloatMath.alpha(this, b, c))
+fun Float.alpha(b: Float, c: Float): Float = (c - this) / (b - this)
 
 object FloatMath {
     fun abs(value: Float): Float = Math.abs(value)
@@ -89,7 +92,7 @@ object FloatMath {
     fun nextAfter(start: Float, direction: Float): Float = Math.nextAfter(start, direction.toDouble())
     fun clamp(value: Float, min: Float, max: Float): Float = Math.max(min, Math.min(value, max))
 
-    fun lerp(a: Float, b: Float, alpha: Float) = a + (b-a) * alpha
-    fun lerpRelative(a: Float, b: Float, c: Float) = lerp(a, b, alpha(a, b, c))
-    fun alpha(a: Float, b: Float, c: Float) = (c - a) / (b - a)
+    fun lerp(a: Float, b: Float, alpha: Float): Float = a + (b-a) * alpha
+    fun lerpRelative(a: Float, b: Float, c: Float): Float = lerp(a, b, alpha(a, b, c))
+    fun alpha(a: Float, b: Float, c: Float): Float = (c - a) / (b - a)
 }

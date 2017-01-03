@@ -92,7 +92,6 @@ open class DrifterAssets(atlasName: String? = null) {
      * Populates the fields of ''this'' with the loaded assets.
      */
     fun populateAtlas() {
-        println("POPULATING ATLAS from $atlasPath")
         primaryAtlas = atlasPath.let { path ->
             manager.get(path, TextureAtlas::class.java)
         }

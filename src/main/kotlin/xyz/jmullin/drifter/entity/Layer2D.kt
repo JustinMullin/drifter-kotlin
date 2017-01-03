@@ -18,7 +18,7 @@ import xyz.jmullin.drifter.rendering.*
  * @param stages Rendering stages to draw with.
  * @param shader If specified, the [[ShaderSet]] to use by default in rendering sprites.
  */
-class Layer2D(override val index: Int,
+open class Layer2D(override val index: Int,
               override val viewportSize: Vector2,
               val autoCenter: Boolean,
               val stages: Collection<RenderStage>) : EntityContainer2D, Layer {
@@ -84,11 +84,8 @@ class Layer2D(override val index: Int,
     }
 
     fun renderBufferStage(stage: BufferStage) {
-        val overdrawAspect = stage.buffer.size / gameSize()
-        val newViewSize = viewportSize * overdrawAspect
-        camera.setToOrtho(false, newViewSize.x, newViewSize.y)
-        camera.translate(viewportSize * (-overdrawAspect + 1f) * 0.5f)
-        viewport?.setWorldSize(newViewSize.x, newViewSize.y)
+        camera.setToOrtho(false, viewportSize.x, viewportSize.y)
+        viewport?.setWorldSize(viewportSize.x, viewportSize.y)
         camera.update()
         stage.batch.projectionMatrix = camera.combined
         stage.buffer.begin()

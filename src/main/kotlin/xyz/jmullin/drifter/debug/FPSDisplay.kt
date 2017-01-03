@@ -1,10 +1,12 @@
 package xyz.jmullin.drifter.debug
 
+import com.badlogic.gdx.Game
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.math.Vector2
 import xyz.jmullin.drifter.entity.Entity2D
+import xyz.jmullin.drifter.entity.EntityContainer2D
 import xyz.jmullin.drifter.extensions.*
 import xyz.jmullin.drifter.rendering.Draw
 import xyz.jmullin.drifter.rendering.RenderStage
@@ -26,6 +28,12 @@ class FPSDisplay(val font: BitmapFont,
                  val align: Vector2 = V2(0, 1)) : Entity2D() {
 
     private val layout = GlyphLayout()
+
+    override fun create(container: EntityContainer2D) {
+        if(!game().devMode) remove()
+
+        super.create(container)
+    }
 
     override fun render(stage: RenderStage) {
         layout.setText(font, "FPS: 100")
