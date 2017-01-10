@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.reflect.ClassReflection
 import xyz.jmullin.drifter.assets.delegates.*
@@ -44,6 +45,7 @@ open class DrifterAssets(atlasName: String? = null) {
     val pixmap: PixmapDelegate get() = PixmapDelegate(this)
     val textureAtlas: TextureAtlasDelegate get() = TextureAtlasDelegate(this)
     val texture: TextureDelegate get() = TextureDelegate(this)
+    fun particleEffect(particleSystem: ParticleSystem) = ParticleEffectDelegate(particleSystem, this)
 
     fun animation(name: String) = AnimationDelegate(name, this)
     fun font(name: String) = FontDelegate(name, this)
@@ -54,6 +56,7 @@ open class DrifterAssets(atlasName: String? = null) {
     fun pixmap(name: String) = PixmapDelegate(name, this)
     fun textureAtlas(name: String) = TextureAtlasDelegate(name, this)
     fun texture(name: String, extension: String="png") = TextureDelegate(name, extension, this)
+    fun particleEffect(particleSystem: ParticleSystem, name: String) = ParticleEffectDelegate(particleSystem, name, this)
 
     /**
      * Retrieves a list of fields from ''this''.

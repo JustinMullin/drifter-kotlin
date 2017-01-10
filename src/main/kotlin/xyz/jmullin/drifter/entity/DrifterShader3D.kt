@@ -20,6 +20,7 @@ import com.badlogic.gdx.math.Matrix3
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
+import xyz.jmullin.drifter.debug.log
 import xyz.jmullin.drifter.extensions.V3
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader.Setter as SetterGDX
 
@@ -72,6 +73,7 @@ open class DrifterShader3D(var renderable: Renderable,
     }
 
     override fun init() {
+        log("Initializing shader $vertexShader / $fragmentShader")
 
         init(ShaderProgram(
             Gdx.files.internal("shader/${vertexShader ?: "default3d"}.vert"),
@@ -100,7 +102,7 @@ open class DrifterShader3D(var renderable: Renderable,
 
     companion object DrifterShader3D {
         val cameraProjection = setter("cameraProjection", { s: BaseShader, r: Renderable?, a: Attributes? ->
-            println("HERE"); s.camera.projection }, true)
+            s.camera.projection }, true)
 
         val cameraView = setter("cameraView", { s: BaseShader, r: Renderable?, a: Attributes? ->
             s.camera.view }, true)
