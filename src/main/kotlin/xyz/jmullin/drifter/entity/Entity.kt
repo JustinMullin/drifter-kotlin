@@ -15,8 +15,9 @@ open class Entity {
      *
      * @param h Hook to add.
      */
-    fun add(h: Hook) {
+    fun <T : Hook> add(h: T): T {
         hooks += h
+        return h
     }
 
     /**
@@ -42,6 +43,6 @@ open class Entity {
      */
     open fun update(delta: Float) {
         hooks.forEach { it.update(delta, this) }
-        hooks = hooks.filter(Hook::running).toSet()
+        hooks = hooks.filter(Hook::valid).toSet()
     }
 }

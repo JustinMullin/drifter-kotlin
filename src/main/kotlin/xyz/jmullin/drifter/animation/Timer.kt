@@ -17,7 +17,7 @@ open class Timer(var duration: Float, done: () -> Unit) : Trigger(done) {
     /**
      * Returns true if the timer has not yet elapsed its duration.
      */
-    override val running: Boolean get() = elapsed < duration
+    override val valid: Boolean get() = elapsed < duration
 
     override fun update(delta: Float, e: Entity) {
         elapsed += delta

@@ -1,4 +1,4 @@
-package xyz.jmullin.drifter.libgdxWorkaround
+package xyz.jmullin.drifter.gdx
 
 import com.badlogic.gdx.graphics.g3d.particles.ParallelArray
 import com.badlogic.gdx.graphics.g3d.particles.ParticleChannels

@@ -25,12 +25,13 @@ import xyz.jmullin.drifter.rendering.string
 class FPSDisplay(val font: BitmapFont,
                  val color: Color = Color.YELLOW,
                  val backgroundColor: Color = Color.CLEAR,
-                 val align: Vector2 = V2(0, 1)) : Entity2D() {
+                 val align: Vector2 = V2(0, 1),
+                 val attachedStage: RenderStage) : Entity2D() {
 
     private val layout = GlyphLayout()
 
     override fun create(container: EntityContainer2D) {
-        if(!game().devMode) remove()
+        if(!drifter().devMode) remove()
 
         super.create(container)
     }
@@ -42,7 +43,7 @@ class FPSDisplay(val font: BitmapFont,
         val v = V2(5f) + (gameSize() - 10f - textBounds) * align
 
         font.color = color
-        stage.draw {
+        stage.draw(attachedStage) {
             Draw.fill.color = backgroundColor
             sprite(Draw.fill, v - V2(5f), textBounds + V2(10f))
             string("FPS: ${gameFps()}", v, font, V2(1, 1))

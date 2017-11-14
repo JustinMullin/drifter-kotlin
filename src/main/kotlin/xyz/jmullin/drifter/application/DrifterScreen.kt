@@ -8,22 +8,26 @@ import com.badlogic.gdx.graphics.GL20.*
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider
 import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.scenes.scene2d.InputListener
 import xyz.jmullin.drifter.entity.Layer
 import xyz.jmullin.drifter.entity.Layer2D
 import xyz.jmullin.drifter.entity.Layer3D
 import xyz.jmullin.drifter.extensions.V2
-import xyz.jmullin.drifter.extensions.gameH
-import xyz.jmullin.drifter.extensions.gameW
 import xyz.jmullin.drifter.rendering.BlitStage
 import xyz.jmullin.drifter.rendering.RenderStage
 
 /**
  * Screen implementation for use with Drifter, facilitates creation and management of layers for
  * render/update of entities.
- *
- * @param background Background color to clear to on each frame.
  */
-open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Screen {
+open class DrifterScreen : DrifterInput, Screen {
+    open val backgroundColor = Color.BLACK
+
+    /**
+     * Input listeners attached to this screen.
+     */
+    var inputListeners = emptyList<InputListener>()
+
     /**
      * Layers attached to this screen.
      */
@@ -46,7 +50,7 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
                    rootStage: RenderStage,
                    init: Layer2D.() -> Unit = {}): Layer2D {
         val stages = if(rootStage is BlitStage) {
-            rootStage.sources + rootStage
+            stageDependencies(rootStage)
         } else {
             listOf(rootStage)
         }
@@ -58,6 +62,21 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
     }
 
     /**
+     * Constructs a list of render stages by dependency order, so that stages depended on by others
+     * are processed first.
+     */
+    private fun stageDependencies(root: RenderStage): List<RenderStage> {
+        var stages = listOf(root)
+        stages += root.dependencies()
+        var next = root.dependencies().flatMap { it.dependencies() }
+        while(next.isNotEmpty()) {
+            stages += next
+            next = next.flatMap { it.dependencies() }
+        }
+        return stages.reversed().distinct()
+    }
+
+    /**
      * Create and attach a new Layer3D to this screen.
      *
      * @param index Rendering index of this layer.
@@ -65,7 +84,7 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
      * @param fov Field of view to render this layer at.
      * @return The created Layer.
      */
-    fun newLayer3D(index: Int, size: Vector2, fov: Float = 67f, shaderProvider: ShaderProvider = DefaultShaderProvider()): Layer3D {
+    fun newLayer3D(index: Int, size: Vector2, shaderProvider: ShaderProvider = DefaultShaderProvider()): Layer3D {
         val layer = Layer3D(index, size, shaderProvider)
         layers += layer
         return layer
@@ -87,7 +106,7 @@ open class DrifterScreen(val background: Color = Color.BLACK) : DrifterInput, Sc
      * @param delta Time elapsed since the last frame.
      */
     override fun render(delta: Float) {
-        Gdx.gl.glClearColor(background.r, background.g, background.b, background.a)
+        Gdx.gl.glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1f)
         Gdx.gl20.glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
         Gdx.gl20.glEnable(GL_BLEND)
         Gdx.gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)

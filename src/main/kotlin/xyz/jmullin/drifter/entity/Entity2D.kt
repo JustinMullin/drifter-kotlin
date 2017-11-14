@@ -3,10 +3,11 @@ package xyz.jmullin.drifter.entity
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
+import xyz.jmullin.drifter.animation.Trigger
 import xyz.jmullin.drifter.extensions.V2
 import xyz.jmullin.drifter.rendering.RenderStage
-import xyz.jmullin.drifter.rendering.ShaderSet
-import xyz.jmullin.drifter.rendering.Shaders
+import xyz.jmullin.drifter.rendering.shader.ShaderSet
+import xyz.jmullin.drifter.rendering.shader.Shaders
 
 /**
  * 2-dimensional entity, contains scaffolding on top of Entity for tracking 2d position and orientation.
@@ -14,6 +15,9 @@ import xyz.jmullin.drifter.rendering.Shaders
  */
 @Suppress("UNUSED_PARAMETER")
 open class Entity2D : EntityContainer2D, Entity() {
+    override var paused: Boolean = false
+    override var hidden: Boolean = false
+
     // Implicits for local context
     fun self() = this
     override fun layer() = parent?.layer()
@@ -33,11 +37,18 @@ open class Entity2D : EntityContainer2D, Entity() {
      * World size of the entity.
      */
     val size = V2(0, 0)
+
+    /**
+     * Priority of the entity, used for determining update order (entities with higher priority will be processed
+     * before entities with lower priority).
+     */
+    var priority = 0
+
     /**
      * Depth of the entity, used for Z sorting (entities with lower depth will appear on top
      * of entities with higher depth)
      */
-    var depth = 0
+    var depth = 0f
 
     // Convenience methods for referring to position and size components directly
     val x: Float get() = position.x
@@ -126,4 +137,6 @@ open class Entity2D : EntityContainer2D, Entity() {
         block()
         Shaders.switch(Shaders.default, batch)
     }
+
+    fun Trigger.go() = this.go(this@Entity2D)
 }

@@ -51,7 +51,7 @@ fun Vector2.flipX() = (this * V2(-1, 1)).fixZeroes()
 fun Vector2.flipY() = (this * V2(1, -1)).fixZeroes()
 
 fun Vector2.center(o: Vector2) = this + o/2f
-fun Vector2.midpoint(o: Vector2) = V2((x-o.x)*0.5f, (y-o.y)*0.5f)
+fun Vector2.midpoint(o: Vector2) = V2((x+o.x)*0.5f, (y+o.y)*0.5f)
 
 fun Vector2.min(o: Vector2) = V2(mMin(x, o.x), mMin(y, o.y))
 fun Vector2.max(o: Vector2) = V2(mMax(x, o.x), mMax(y, o.y))

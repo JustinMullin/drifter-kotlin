@@ -1,7 +1,7 @@
 package xyz.jmullin.drifter.assets.delegates
 
 import xyz.jmullin.drifter.assets.DrifterAssets
-import xyz.jmullin.drifter.assets.DrifterAssetsException
+import xyz.jmullin.drifter.error.DrifterAssetsException
 import kotlin.reflect.KProperty
 
 abstract class AssetDelegate<T>(var assetName: String?, val assets: DrifterAssets) {

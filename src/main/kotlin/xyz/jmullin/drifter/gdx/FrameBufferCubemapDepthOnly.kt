@@ -1,4 +1,4 @@
-package xyz.jmullin.drifter.libgdxWorkaround
+package xyz.jmullin.drifter.gdx
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Gdx.gl30

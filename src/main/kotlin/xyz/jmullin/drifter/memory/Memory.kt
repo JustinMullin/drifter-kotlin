@@ -1,11 +1,11 @@
 package xyz.jmullin.drifter.memory
 
 import com.badlogic.gdx.Gdx
-import xyz.jmullin.drifter.extensions.game
+import xyz.jmullin.drifter.extensions.drifter
 import xyz.jmullin.drifter.memory.Memory.prefs
 
 object Memory {
-    val prefs by lazy { Gdx.app.getPreferences(game().name)!! }
+    val prefs by lazy { Gdx.app.getPreferences(drifter().name)!! }
 }
 
 fun getString(key: String, default: String? = null): String {

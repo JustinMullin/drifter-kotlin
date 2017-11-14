@@ -1,6 +1,7 @@
 package xyz.jmullin.drifter.animation
 
 import xyz.jmullin.drifter.entity.Entity
+import xyz.jmullin.drifter.entity.Entity2D
 import xyz.jmullin.drifter.entity.Hook
 
 /**

@@ -2,7 +2,10 @@ version = "0.2-SNAPSHOT"
 group = "xyz.jmullin.drifter"
 
 buildscript {
-    ext.kotlinVersion = '1.0.5-2'
+    ext {
+        kotlinVersion = '1.1.4'
+        gdxVersion = '1.9.5'
+    }
     repositories {
         mavenCentral()
     }
@@ -33,10 +36,9 @@ artifacts {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    compile "com.badlogicgames.gdx:gdx:1.9.4"
-    compile "com.badlogicgames.gdx:gdx-backend-lwjgl:1.9.4"
-    testCompile 'junit:junit:4.11'
-    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+    compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+    compile "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+    compile "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
 }
 
 task wrapper(type: Wrapper) {

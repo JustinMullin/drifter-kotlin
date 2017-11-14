@@ -2,7 +2,7 @@ package xyz.jmullin.drifter.assets.delegates
 
 import com.badlogic.gdx.graphics.g2d.Sprite
 import xyz.jmullin.drifter.assets.DrifterAssets
-import xyz.jmullin.drifter.assets.DrifterAssetsException
+import xyz.jmullin.drifter.error.DrifterAssetsException
 
 class SpriteDelegate(assetName: String?, assets: DrifterAssets) : AssetDelegate<Sprite>(assetName, assets) {
     constructor(assets: DrifterAssets) : this(null, assets)
@@ -18,7 +18,7 @@ class SpriteDelegate(assetName: String?, assets: DrifterAssets) : AssetDelegate<
         if(assets.primaryAtlas == null) {
             throw DrifterAssetsException(
                 "No texture atlas loaded to pull sprite '${safeAssetName()}' from. " +
-                "At least one TextureAtlas is required to load Sprites.")
+                    "At least one TextureAtlas is required to load Sprites.")
         }
 
         return assets.primaryAtlas?.createSprite(safeAssetName())

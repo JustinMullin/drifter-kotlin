@@ -2,7 +2,6 @@
 package xyz.jmullin.drifter.extensions
 
 import com.badlogic.gdx.graphics.Pixmap
-import com.badlogic.gdx.graphics.glutils.FrameBuffer
 import com.badlogic.gdx.math.Vector2
 
 /**

@@ -16,7 +16,7 @@ import xyz.jmullin.drifter.assets.delegates.*
  *
  * '''To use:'''
  *
- * Create a class or object which extends from DrifterAssets, and define one field per asset to load.
+ * Create a class or object which : from DrifterAssets, and define one field per asset to load.
  * Assets will be loaded from the classpath based on field type, using the class mapping defined in
  * DrifterAssets.PrefixMap to determine the relative path and file extension to load from.  File names
  * must match the field name specified except in the case of Animation, which takes a suffix indicating the

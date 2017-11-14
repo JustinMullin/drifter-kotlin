@@ -13,7 +13,7 @@ import xyz.jmullin.drifter.entity.Entity
 class Tween(duration: Float,
             val tick: (Float) -> Unit,
             done: () -> Unit,
-            val easing: Easing = Easing.Companion.Linear) : Timer(duration, done) {
+            val easing: Easing = Linear) : Timer(duration, done) {
     override fun update(delta: Float, e: Entity) {
         tick(easing.apply(elapsed/duration))
 

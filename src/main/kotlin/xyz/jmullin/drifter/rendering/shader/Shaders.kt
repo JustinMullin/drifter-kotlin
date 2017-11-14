@@ -1,4 +1,4 @@
-package xyz.jmullin.drifter.rendering
+package xyz.jmullin.drifter.rendering.shader
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
@@ -12,22 +12,20 @@ object Shaders {
         ShaderProgram.pedantic = false
     }
 
-    val default = ShaderSet("default", "default")
+    val default = shader("default", "default")
 
     fun switch(s: ShaderSet, batch: SpriteBatch) {
         batch.flush()
         batch.shader = s.program
 
-        s.init()
         s.update()
     }
 }
 
-fun shader(fragShader: String, vertShader: String, tick: (ShaderProgram) -> Unit = {}): ShaderSet {
-    return object : ShaderSet(fragShader, vertShader) {
-        override fun tick() {
-            program?.let { tick(it) }
-            super.tick()
-        }
-    }
+/**
+ * Convenience constructor for a shader. Provides a no-op block intended for placing side-effecting
+ * uniform delegate creators.
+ */
+fun shader(fragShader: String, vertShader: String = "default", init: ShaderSet.() -> Unit = {}): ShaderSet {
+    return ShaderSet(fragShader, vertShader).apply(init)
 }

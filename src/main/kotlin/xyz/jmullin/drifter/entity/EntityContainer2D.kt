@@ -9,7 +9,10 @@ import xyz.jmullin.drifter.rendering.RenderStage
  * through render, update and input events to attached children appropriately.
  */
 interface EntityContainer2D : DrifterInput {
-    // Implicit layer for local context
+    var paused: Boolean
+    var hidden: Boolean
+
+    // Containing layer for local context
     fun layer(): Layer2D?
 
     /**
@@ -44,12 +47,12 @@ interface EntityContainer2D : DrifterInput {
     /**
      * Draws all attached children entities.
      *
-     * @param batch Active SpriteBatch to use in drawing.
+     * @param stage Active render stage to draw to.
      */
     fun renderChildren(stage: RenderStage) {
-        children = children.sortedBy { -it.depth }
-
-        children.forEach { it.render(stage) }
+        if(!hidden) {
+            children.sortedBy { -it.depth }.forEach { it.render(stage) }
+        }
     }
 
     /**
@@ -58,7 +61,41 @@ interface EntityContainer2D : DrifterInput {
      * @param delta Time elapsed since the last update tick.
      */
     fun updateChildren(delta: Float) {
-        children.forEach { it.update(delta) }
+        if(!paused) {
+            children.sortedBy { -it.priority }.forEach { it.update(delta) }
+        }
+    }
+
+    /**
+     * Pauses the container, preventing update of its children.
+     */
+    fun pause() {
+        paused = true
+        children.forEach { it.pause() }
+    }
+
+    /**
+     * Resumes the container if paused, allowing update of its children.
+     */
+    fun resume() {
+        paused = false
+        children.forEach { it.resume() }
+    }
+
+    /**
+     * Hides the container, preventing rendering of its children.
+     */
+    fun hide() {
+        hidden = true
+        children.forEach { it.hide() }
+    }
+
+    /**
+     * Shows the container if hidden, allowing rendering of its children.
+     */
+    fun show() {
+        hidden = false
+        children.forEach { it.show() }
     }
 
     // Input events are aggregated through this container's children and coalesced to a single hit result.

@@ -41,7 +41,7 @@ open class Pathfinder<State>(
             }
         }
 
-        return reconstructPath(goal, cameFrom.filter { a -> true })
+        return reconstructPath(goal, cameFrom)
     }
 
     fun reconstructPath(goal: State, cameFrom: Map<State, State?>): Path<State> {

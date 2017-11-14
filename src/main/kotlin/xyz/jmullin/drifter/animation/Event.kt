@@ -12,7 +12,7 @@ class Event(done: () -> Unit) : Trigger(done) {
      * When true, this event is still executing. Events are expected to fall off their containers
      * when they are finished running (running is false).
      */
-    override val running: Boolean = false
+    override val valid: Boolean = false
 
     /**
      * Called once per tick to update this event's state.

@@ -2,7 +2,7 @@ package xyz.jmullin.drifter.assets.delegates
 
 import xyz.jmullin.drifter.animation.Animation
 import xyz.jmullin.drifter.assets.DrifterAssets
-import xyz.jmullin.drifter.assets.DrifterAssetsException
+import xyz.jmullin.drifter.error.DrifterAssetsException
 
 class AnimationDelegate(assetName: String?, assets: DrifterAssets) : AssetDelegate<Animation>(assetName, assets) {
     constructor(assets: DrifterAssets) : this(null, assets)
@@ -18,7 +18,7 @@ class AnimationDelegate(assetName: String?, assets: DrifterAssets) : AssetDelega
         if(assets.primaryAtlas == null) {
             throw DrifterAssetsException(
                 "No texture atlas loaded to pull animation '${safeAssetName()}' from. " +
-                "At least one TextureAtlas is required to load Sprites.")
+                    "At least one TextureAtlas is required to load Sprites.")
         }
 
         return assets.primaryAtlas?.let { atlas ->

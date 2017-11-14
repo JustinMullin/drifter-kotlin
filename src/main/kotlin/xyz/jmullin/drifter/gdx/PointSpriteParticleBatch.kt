@@ -1,4 +1,4 @@
-package xyz.jmullin.drifter.libgdxWorkaround
+package xyz.jmullin.drifter.gdx
 
 import com.badlogic.gdx.Application
 import com.badlogic.gdx.Gdx
@@ -17,7 +17,6 @@ import com.badlogic.gdx.graphics.g3d.particles.ResourceData
 import com.badlogic.gdx.graphics.g3d.particles.batches.BufferedParticleBatch
 import com.badlogic.gdx.graphics.g3d.particles.renderers.PointSpriteControllerRenderData
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
-import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Pool
 
@@ -50,6 +49,8 @@ open class PointSpriteParticleBatch @JvmOverloads constructor(
         renderable = Renderable()
         renderable.meshPart.primitiveType = GL20.GL_POINTS
         renderable.meshPart.offset = 0
+
+        @Suppress("CAST_NEVER_SUCCEEDS")
         renderable.material = Material(
             BlendingAttribute(true, srcBlend, dstBlend, 0.5f),
             FloatAttribute(AlphaTest, 0.05f),
@@ -125,7 +126,6 @@ open class PointSpriteParticleBatch @JvmOverloads constructor(
 
     companion object {
         private var pointSpritesEnabled = false
-        protected val TMP_V1 = Vector3()
         protected val sizeAndRotationUsage = 1 shl 9
         protected val CPU_ATTRIBUTES = VertexAttributes(VertexAttribute(VertexAttributes.Usage.Position, 3,
             ShaderProgram.POSITION_ATTRIBUTE), VertexAttribute(VertexAttributes.Usage.ColorUnpacked, 4, ShaderProgram.COLOR_ATTRIBUTE),

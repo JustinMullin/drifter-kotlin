@@ -8,10 +8,15 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.*
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack
 import com.badlogic.gdx.utils.Align
 import xyz.jmullin.drifter.entity.Layer2D
-import xyz.jmullin.drifter.extensions.V2
+import xyz.jmullin.drifter.extensions.*
+import xyz.jmullin.drifter.gl.Blend
+import xyz.jmullin.drifter.rendering.shader.ShaderSet
+import xyz.jmullin.drifter.rendering.shader.Shaders
 
 /**
  * Convenience methods for drawing things succinctly.
@@ -47,10 +52,25 @@ fun SpriteBatch.sprite(sprite: Sprite, v: Vector2, size: Vector2) {
 }
 
 /**
+ * Draw a sprite with given bounds.
+ */
+fun SpriteBatch.sprite(sprite: Sprite, bounds: Rectangle) {
+    sprite.setBounds(bounds.x, bounds.y, bounds.width, bounds.height)
+    sprite.draw(this)
+}
+
+/**
  * Draw a nine-patch at a given position and size.
  */
 fun SpriteBatch.sprite(patch: NinePatch, v: Vector2, size: Vector2) {
     patch.draw(this, v.x, v.y, size.x, size.y)
+}
+
+/**
+ * Draw a nine-patch with given bounds.
+ */
+fun SpriteBatch.sprite(patch: NinePatch, bounds: Rectangle) {
+    patch.draw(this, bounds.x, bounds.y, bounds.width, bounds.height)
 }
 
 /**
@@ -61,12 +81,45 @@ fun SpriteBatch.texture(texture: Texture, v: Vector2, size: Vector2) {
 }
 
 /**
- * Draw a texture at a given position and size.
+ * Draw a texture with given bounds.
+ */
+fun SpriteBatch.texture(texture: Texture, bounds: Rectangle) {
+    draw(texture, bounds.x, bounds.y, bounds.width, bounds.height)
+}
+
+/**
+ * Draw a texture at a given position and size with the specified texture coords.
  */
 fun SpriteBatch.texture(texture: Texture, v: Vector2, size: Vector2, uvA: Vector2, uvB: Vector2) {
     draw(texture, v.x, v.y, size.x, size.y, uvA.x, uvA.y, uvB.x, uvB.y)
 }
 
+/**
+ * Draw a texture with given bounds and texture coords.
+ */
+fun SpriteBatch.texture(texture: Texture, bounds: Rectangle, uvA: Vector2, uvB: Vector2) {
+    draw(texture, bounds.x, bounds.y, bounds.x, bounds.y, uvA.x, uvA.y, uvB.x, uvB.y)
+}
+
+/**
+ * Draws a simple filled rectangle with the specified color.
+ */
+fun SpriteBatch.fill(v: Vector2, size: Vector2, color: Color) {
+    Draw.fill.color = color
+    sprite(Draw.fill, v, size)
+}
+
+/**
+ * Draws a simple filled rectangle with the specified color.
+ */
+fun SpriteBatch.fill(bounds: Rectangle, color: Color) {
+    Draw.fill.color = color
+    sprite(Draw.fill, bounds)
+}
+
+/**
+ * Draws a textured quad with the given vertices.
+ */
 fun SpriteBatch.quad(sprite: Sprite, a: Vector2, b: Vector2, c: Vector2, d: Vector2, color: Color = Color.WHITE) {
     val u = sprite.u
     val v = sprite.v
@@ -76,6 +129,9 @@ fun SpriteBatch.quad(sprite: Sprite, a: Vector2, b: Vector2, c: Vector2, d: Vect
     quad(sprite.texture, a, b, c, d, V2(u, v), V2(u, v2), V2(u2, v2), V2(u2, v), color)
 }
 
+/**
+ * Draws a textured quad with the given vertices and texture coordinates.
+ */
 fun SpriteBatch.quad(texture: Texture,
                      a: Vector2, b: Vector2, c: Vector2, d: Vector2,
                      uvA: Vector2, uvB: Vector2, uvC: Vector2, uvD: Vector2,
@@ -144,7 +200,7 @@ fun SpriteBatch.string(str: String, v: Vector2, font: BitmapFont, align: Vector2
  */
 fun SpriteBatch.stringWrapped(str: String, v: Vector2, width: Float, font: BitmapFont, align: Vector2) {
     Draw.layout.setText(font, str, font.color, width, Align.center, true)
-    font.draw(this, str, v.x - Draw.layout.width / 2f, v.y + (align.y + 1) * Draw.layout.height * 0.5f)
+    font.draw(this, str, v.x + (align.x - 1) * Draw.layout.width * 0.5f, v.y + (align.y + 1) * Draw.layout.height * 0.5f, width, Align.center, true)
 }
 
 /**
@@ -158,11 +214,59 @@ fun SpriteBatch.stringWrapped(str: String, v: Vector2, start: Int, end: Int, wid
 /**
  * Set up a polygon renderer for drawing filled polygons.
  */
-fun polygons(layer: Layer2D?, f: (PolygonRenderer) -> Unit) {
-    Draw.polygonBatch.begin()
-    Draw.polygonBatch.projectionMatrix = layer?.camera?.projection
+fun polygons(layer: Layer2D?, f: (PolygonRenderer) -> Unit, batch: PolygonSpriteBatch = Draw.polygonBatch) {
+    batch.begin()
+    batch.projectionMatrix = layer?.camera?.projection
 
-    f(PolygonRenderer(Draw.polygonBatch))
+    f(PolygonRenderer(batch))
 
-    Draw.polygonBatch.end()
+    batch.end()
+}
+
+/**
+ * Sets up a scissor stack for efficient rectangular clipping.
+ */
+fun SpriteBatch.clip(layer: Layer2D?, bounds: Rectangle, f: SpriteBatch.() -> Unit) {
+    flush()
+
+    val scissors = Rectangle()
+    val aspect = gameSize() / gameSizeRaw()
+    ScissorStack.calculateScissors(layer?.camera, 0f, 0f, gameW().toFloat()*aspect.x, gameH().toFloat()*aspect.y, transformMatrix, bounds, scissors)
+    ScissorStack.pushScissors(scissors)
+
+    this.f()
+
+    flush()
+    ScissorStack.popScissors();
+}
+
+/**
+ * Switches to a new shader set, switching back to the default shader afterwards.
+ */
+fun SpriteBatch.inShader(shaderSet: ShaderSet, f: SpriteBatch.(ShaderProgram) -> Unit) {
+    Shaders.switch(shaderSet, this)
+    this.f(shaderSet.program!!)
+
+    Shaders.switch(Shaders.default, this)
+}
+
+/**
+ * Enables a custom blending mode, returning to regular alpha blending afterwards.
+ */
+fun SpriteBatch.blend(source: Pair<Blend, Blend>, f: SpriteBatch.() -> Unit) = blend(source.first, source.second, f)
+
+/**
+ * Enables a custom blending mode, returning to regular alpha blending afterwards.
+ */
+fun SpriteBatch.blend(source: Blend, dest: Blend, f: SpriteBatch.() -> Unit) {
+    flush()
+
+    enableBlending()
+    setBlendFunction(source.gl, dest.gl)
+
+    this.f()
+
+    flush()
+
+    setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
 }

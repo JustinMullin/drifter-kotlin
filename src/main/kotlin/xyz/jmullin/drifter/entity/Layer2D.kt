@@ -1,13 +1,14 @@
 package xyz.jmullin.drifter.entity
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.*
+import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import xyz.jmullin.drifter.extensions.*
 import xyz.jmullin.drifter.rendering.*
+import java.nio.FloatBuffer
 
 /**
  * 2-dimensional layer implementation.  Contains Entity2Ds.
@@ -16,12 +17,15 @@ import xyz.jmullin.drifter.rendering.*
  * @param viewportSize Size of the viewport to use in drawing the world.
  * @param autoCenter If true, the viewport will be auto-centered in the world.
  * @param stages Rendering stages to draw with.
- * @param shader If specified, the [[ShaderSet]] to use by default in rendering sprites.
  */
 open class Layer2D(override val index: Int,
-              override val viewportSize: Vector2,
-              val autoCenter: Boolean,
-              val stages: Collection<RenderStage>) : EntityContainer2D, Layer {
+                   final override val viewportSize: Vector2,
+                   private val autoCenter: Boolean,
+                   private val stages: Collection<RenderStage>) : EntityContainer2D, Layer {
+
+    override var paused: Boolean = false
+    override var hidden: Boolean = false
+
     // Self reference for containership
     override fun layer() = this
 
@@ -34,6 +38,12 @@ open class Layer2D(override val index: Int,
      * Camera used to render the world.
      */
     var camera = OrthographicCamera(viewportSize.x, viewportSize.y)
+
+    // TODO: these need to be cleaned up
+    var cameraPos = V2(0f)
+    var cameraRot = 0f
+    var actualCameraRot = 0f
+    var cameraZoom = 1f
 
     /**
      * Viewport for world-space rendering.
@@ -59,39 +69,57 @@ open class Layer2D(override val index: Int,
             stages.forEach { stage ->
                 when(stage) {
                     is BlitStage -> renderBlitStage(stage)
-                    is BufferStage -> renderBufferStage(stage)
+                    is PingPongBufferStage -> pingPongBufferStage(stage)
+                    is BufferStage -> renderBufferStage(stage, stage.sources.flatMap { it.textures() })
                     is DrawStage -> renderDrawStage(stage)
                 }
             }
         }
     }
 
-    fun renderBlitStage(stage: BlitStage) {
+    private fun renderBlitStage(stage: BlitStage) {
         stage.batch.shader = stage.shader.program
         stage.batch.begin()
         stage.shader.update()
 
-        stage.sources.forEachIndexed { i, source ->
+        stage.sources.flatMap { it.textures() }
+            .forEachIndexed { i, (tag, texture) ->
             val unit = stage.sources.size - i
-            source.buffer.colorBufferTexture?.bind(unit)
-            stage.shader.program?.setUniformi(source.tag, unit)
+            texture.bind(unit)
+            stage.shader.program?.setUniformi(tag, unit)
         }
         Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0)
 
-        stage.batch.sprite(Draw.fill, V2(0f, gameH()), gameSize() * V2(1f, -1f))
+        stage.batch.fill(gameBounds(), Color.WHITE)
 
         stage.batch.end()
     }
 
-    fun renderBufferStage(stage: BufferStage) {
+    private fun pingPongBufferStage(stage: PingPongBufferStage) {
+        stage.ping = false
+
+        renderBufferStage(stage, listOf("source" to stage.initialSource()), { it.setUniformi("ping", 0) })
+        (0 until stage.iterations).forEachIndexed { i, _ ->
+            stage.pong()
+            renderBufferStage(stage, listOf("source" to stage.inactiveTexture), { it.setUniformi("ping", (i+1) % 2) })
+        }
+    }
+
+    private fun renderBufferStage(stage: BufferStage, sourceTextures: List<Pair<String, Texture>>,
+                                  uniforms: (ShaderProgram) -> Unit = {}) {
+
         camera.setToOrtho(false, viewportSize.x, viewportSize.y)
+        camera.view.setToRotation(V3(0f, 0f, 1f), cameraRot)
+        camera.position.set(V3(cameraPos, 0f))
+        camera.zoom = cameraZoom
         viewport?.setWorldSize(viewportSize.x, viewportSize.y)
         camera.update()
         stage.batch.projectionMatrix = camera.combined
-        stage.buffer.begin()
+        stage.begin()
 
-        Gdx.gl.glClearColor(stage.backgroundColor.r, stage.backgroundColor.g, stage.backgroundColor.b, stage.backgroundColor.a)
-        Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
+        stage.targets.forEachIndexed { i, target ->
+            Gdx.gl30.glClearBufferfv(GL30.GL_COLOR, i, target.backgroundColor.toBuffer())
+        }
         Gdx.gl20.glEnable(GL20.GL_BLEND)
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
 
@@ -99,16 +127,34 @@ open class Layer2D(override val index: Int,
         stage.batch.begin()
         stage.shader.update()
 
+        stage.shader.program?.let(uniforms)
+
+        sourceTextures.forEachIndexed { i, (tag, texture) ->
+            val unit = sourceTextures.size - i
+            texture.bind(unit)
+            stage.shader.program?.setUniformi(tag, unit)
+        }
+        Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0)
+
         renderChildren(stage)
+
+        if(stage.fill) {
+            stage.batch.fill(gameBounds(), Color.MAGENTA)
+        }
 
         stage.batch.end()
         stage.batch.flush()
-        stage.buffer.end()
+        stage.end()
         viewport?.setWorldSize(viewportSize.x, viewportSize.y)
         camera.setToOrtho(false, viewportSize.x, viewportSize.y)
     }
 
     fun renderDrawStage(stage: DrawStage) {
+        camera.position.set(V3(cameraPos, 0f))
+        camera.rotate(cameraRot - actualCameraRot)
+        actualCameraRot = cameraRot
+        camera.zoom = cameraZoom
+
         stage.batch.projectionMatrix = camera.combined
         stage.batch.shader = stage.shader.program
         stage.batch.begin()

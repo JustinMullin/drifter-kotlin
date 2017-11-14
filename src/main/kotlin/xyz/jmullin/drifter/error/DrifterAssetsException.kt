@@ -1,4 +1,4 @@
-package xyz.jmullin.drifter.assets
+package xyz.jmullin.drifter.error
 
 /**
  * Thrown if errors occur while loading assets.
