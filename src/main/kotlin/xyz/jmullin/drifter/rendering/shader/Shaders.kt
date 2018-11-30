@@ -17,6 +17,7 @@ object Shaders {
     fun switch(s: ShaderSet, batch: SpriteBatch) {
         batch.flush()
         batch.shader = s.program
+        batch.flush()
 
         s.update()
     }

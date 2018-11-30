@@ -47,16 +47,20 @@ object Draw {
  * Draw a sprite at a given position and size.
  */
 fun SpriteBatch.sprite(sprite: Sprite, v: Vector2, size: Vector2) {
+    val bounds = Rectangle(sprite.boundingRectangle)
     sprite.setBounds(v.x, v.y, size.x, size.y)
     sprite.draw(this)
+    sprite.setBounds(bounds.x, bounds.y, bounds.width, bounds.height)
 }
 
 /**
  * Draw a sprite with given bounds.
  */
 fun SpriteBatch.sprite(sprite: Sprite, bounds: Rectangle) {
+    val oldBounds = Rectangle(sprite.boundingRectangle)
     sprite.setBounds(bounds.x, bounds.y, bounds.width, bounds.height)
     sprite.draw(this)
+    sprite.setBounds(oldBounds.x, oldBounds.y, oldBounds.width, oldBounds.height)
 }
 
 /**
@@ -130,6 +134,32 @@ fun SpriteBatch.quad(sprite: Sprite, a: Vector2, b: Vector2, c: Vector2, d: Vect
 }
 
 /**
+ * Draws a textured quad with the given vertices.
+ */
+fun SpriteBatch.quad(sprite: Sprite, a: Vector2, b: Vector2, c: Vector2, d: Vector2,
+                     colA: Color, colB: Color, colC: Color, colD: Color) {
+    val u = sprite.u
+    val v = sprite.v
+    val u2 = sprite.u2
+    val v2 = sprite.v2
+
+    quad(sprite.texture, a, b, c, d, V2(u, v), V2(u, v2), V2(u2, v2), V2(u2, v), colA, colB, colC, colD)
+}
+
+/**
+ * Draws a thick line between two points.
+ */
+fun SpriteBatch.line(a: Vector2, b: Vector2, thickness: Float, color: Color) {
+    val dir = (b - a).nor()
+    quad(Draw.fill,
+        a + dir.cpy().rotate(90f) * thickness*0.5f,
+        a - dir.cpy().rotate(90f) * thickness*0.5f,
+        b - dir.cpy().rotate(90f) * thickness*0.5f,
+        b + dir.cpy().rotate(90f) * thickness*0.5f,
+        color)
+}
+
+/**
  * Draws a textured quad with the given vertices and texture coordinates.
  */
 fun SpriteBatch.quad(texture: Texture,
@@ -147,6 +177,31 @@ fun SpriteBatch.quad(texture: Texture,
         b.x, b.y, col, uvB.x, uvB.y,
         c.x, c.y, col, uvC.x, uvC.y,
         d.x, d.y, col, uvD.x, uvD.y)
+
+    draw(texture, vertices, 0, vertices.size)
+}
+
+/**
+ * Draws a textured quad with the given vertices and texture coordinates.
+ */
+fun SpriteBatch.quad(texture: Texture,
+                     a: Vector2, b: Vector2, c: Vector2, d: Vector2,
+                     uvA: Vector2, uvB: Vector2, uvC: Vector2, uvD: Vector2,
+                     colA: Color, colB: Color, colC: Color, colD: Color) {
+    val cA = colA.toFloatBits()
+    val cB = colB.toFloatBits()
+    val cC = colC.toFloatBits()
+    val cD = colD.toFloatBits()
+
+    val vertices = floatArrayOf(
+        a.x, a.y, cA, uvA.x, uvA.y,
+        b.x, b.y, cB, uvB.x, uvB.y,
+        d.x, d.y, cD, uvD.x, uvD.y,
+        a.x, a.y, cA, uvA.x, uvA.y,
+        d.x, d.y, cD, uvD.x, uvD.y,
+        b.x, b.y, cB, uvB.x, uvB.y,
+        c.x, c.y, cC, uvC.x, uvC.y,
+        d.x, d.y, cD, uvD.x, uvD.y)
 
     draw(texture, vertices, 0, vertices.size)
 }
@@ -230,8 +285,7 @@ fun SpriteBatch.clip(layer: Layer2D?, bounds: Rectangle, f: SpriteBatch.() -> Un
     flush()
 
     val scissors = Rectangle()
-    val aspect = gameSize() / gameSizeRaw()
-    ScissorStack.calculateScissors(layer?.camera, 0f, 0f, gameW().toFloat()*aspect.x, gameH().toFloat()*aspect.y, transformMatrix, bounds, scissors)
+    ScissorStack.calculateScissors(layer?.camera, 0f, 0f, gameW().toFloat(), gameH().toFloat(), transformMatrix, bounds, scissors)
     ScissorStack.pushScissors(scissors)
 
     this.f()
@@ -269,4 +323,21 @@ fun SpriteBatch.blend(source: Blend, dest: Blend, f: SpriteBatch.() -> Unit) {
     flush()
 
     setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
+}
+
+fun SpriteBatch.transform(rotation: Float, translation: Vector2, f: SpriteBatch.() -> Unit) {
+    val previousMatrix = transformMatrix.cpy()
+    end()
+
+    transformMatrix
+        .setToRotation(V3(0f, 0f, 1f), rotation)
+        .translate(translation.xyo)
+    begin()
+
+    this.f()
+
+    end()
+
+    transformMatrix.set(previousMatrix)
+    begin()
 }

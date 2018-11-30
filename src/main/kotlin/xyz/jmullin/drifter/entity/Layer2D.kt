@@ -151,6 +151,7 @@ open class Layer2D(override val index: Int,
 
     fun renderDrawStage(stage: DrawStage) {
         camera.position.set(V3(cameraPos, 0f))
+        camera.update()
         camera.rotate(cameraRot - actualCameraRot)
         actualCameraRot = cameraRot
         camera.zoom = cameraZoom

@@ -11,13 +11,19 @@ import xyz.jmullin.drifter.extensions.FloatMath.abs as mAbs
  */
 
 fun V3(a: Float) = Vector3(a, a, a)
+fun V3(a: Int) = Vector3(a.toFloat(), a.toFloat(), a.toFloat())
 fun V3(v: Vector2, z: Float) = Vector3(v.x, v.y, z)
 fun V3(x: Float, v: Vector2) = Vector3(x, v.x, v.y)
 fun V3(x: Float, y: Float, z: Float) = Vector3(x, y, z)
+fun V3(x: Int, y: Int, z: Int) = Vector3(x.toFloat(), y.toFloat(), z.toFloat())
 
 val Vector3.xI: Int get() = x.toInt()
 val Vector3.yI: Int get() = y.toInt()
 val Vector3.zI: Int get() = z.toInt()
+
+operator fun Vector3.component1() = x
+operator fun Vector3.component2() = y
+operator fun Vector3.component3() = z
 
 operator fun Vector3.plus(o: Vector3) = cpy().add(o)
 operator fun Vector3.plus(n: Float) = cpy().add(n, n, n)

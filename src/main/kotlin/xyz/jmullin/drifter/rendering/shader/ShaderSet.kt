@@ -10,7 +10,6 @@ import com.badlogic.gdx.math.Vector3
 import xyz.jmullin.drifter.debug.log
 import xyz.jmullin.drifter.extensions.drifter
 import xyz.jmullin.drifter.rendering.shader.delegate.UniformDelegate
-import kotlin.coroutines.experimental.EmptyCoroutineContext.plus
 
 /**
  * Given files to load shader definitions from, compiles and wraps a [[ShaderProgram]] and functionality
@@ -89,6 +88,14 @@ val ShaderSet.vector3Uniform get() = UniformDelegate.make(this) { name -> Vector
 val ShaderSet.matrix3Uniform get() = UniformDelegate.make(this) { name -> Matrix3Uniform(program!!, name, null) }
 val ShaderSet.matrix4Uniform get() = UniformDelegate.make(this) { name -> Matrix4Uniform(program!!, name, null) }
 val ShaderSet.colorUniform get() = UniformDelegate.make(this) { name -> ColorUniform(program!!, name, null) }
+val ShaderSet.booleanArrayUniform get() = UniformDelegate.make(this) { name -> ArrayUniform(program!!, name, Uniforms.boolean, null) }
+val ShaderSet.intArrayUniform get() = UniformDelegate.make(this) { name -> ArrayUniform(program!!, name, Uniforms.int, null) }
+val ShaderSet.floatArrayUniform get() = UniformDelegate.make(this) { name -> ArrayUniform(program!!, name, Uniforms.float, null) }
+val ShaderSet.vector2ArrayUniform get() = UniformDelegate.make(this) { name -> ArrayUniform(program!!, name, Uniforms.vector2, null) }
+val ShaderSet.vector3ArrayUniform get() = UniformDelegate.make(this) { name -> ArrayUniform(program!!, name, Uniforms.vector3, null) }
+val ShaderSet.matrix3ArrayUniform get() = UniformDelegate.make(this) { name -> ArrayUniform(program!!, name, Uniforms.matrix3, null) }
+val ShaderSet.matrix4ArrayUniform get() = UniformDelegate.make(this) { name -> ArrayUniform(program!!, name, Uniforms.matrix4, null) }
+val ShaderSet.colorArrayUniform get() = UniformDelegate.make(this) { name -> ArrayUniform(program!!, name, Uniforms.color, null) }
 
 /**
  * Uniform registrars intended for use in side-effecting shader declarations.
@@ -101,6 +108,14 @@ fun ShaderSet.vector3Uniform(name: String, tick: (() -> Vector3)?) = Vector3Unif
 fun ShaderSet.matrix3Uniform(name: String, tick: (() -> Matrix3)?) = Matrix3Uniform(program!!, name, tick).apply { uniforms += this }
 fun ShaderSet.matrix4Uniform(name: String, tick: (() -> Matrix4)?) = Matrix4Uniform(program!!, name, tick).apply { uniforms += this }
 fun ShaderSet.colorUniform(name: String, tick: (() -> Color)?) = ColorUniform(program!!, name, tick).apply { uniforms += this }
+fun ShaderSet.booleanArrayUniform(name: String, tick: (() -> List<Boolean>)?) = ArrayUniform(program!!, name, Uniforms.boolean, tick).apply { uniforms += this }
+fun ShaderSet.intArrayUniform(name: String, tick: (() -> List<Int>)?) = ArrayUniform(program!!, name, Uniforms.int, tick).apply { uniforms += this }
+fun ShaderSet.floatArrayUniform(name: String, tick: (() -> List<Float>)?) = ArrayUniform(program!!, name, Uniforms.float, tick).apply { uniforms += this }
+fun ShaderSet.vector2ArrayUniform(name: String, tick: (() -> List<Vector2>)?) = ArrayUniform(program!!, name, Uniforms.vector2, tick).apply { uniforms += this }
+fun ShaderSet.vector3ArrayUniform(name: String, tick: (() -> List<Vector3>)?) = ArrayUniform(program!!, name, Uniforms.vector3, tick).apply { uniforms += this }
+fun ShaderSet.matrix3ArrayUniform(name: String, tick: (() -> List<Matrix3>)?) = ArrayUniform(program!!, name, Uniforms.matrix3, tick).apply { uniforms += this }
+fun ShaderSet.matrix4ArrayUniform(name: String, tick: (() -> List<Matrix4>)?) = ArrayUniform(program!!, name, Uniforms.matrix4, tick).apply { uniforms += this }
+fun ShaderSet.colorArrayUniform(name: String, tick: (() -> List<Color>)?) = ArrayUniform(program!!, name, Uniforms.color, tick).apply { uniforms += this }
 
 fun ShaderSet.booleanUniform(name: String, v: Boolean) = BooleanUniform(program!!, name, { v }).apply { uniforms += this }
 fun ShaderSet.intUniform(name: String, v: Int) = IntUniform(program!!, name, { v }).apply { uniforms += this }
@@ -110,3 +125,11 @@ fun ShaderSet.vector3Uniform(name: String, v: Vector3) = Vector3Uniform(program!
 fun ShaderSet.matrix3Uniform(name: String, v: Matrix3) = Matrix3Uniform(program!!, name, { v }).apply { uniforms += this }
 fun ShaderSet.matrix4Uniform(name: String, v: Matrix4) = Matrix4Uniform(program!!, name, { v }).apply { uniforms += this }
 fun ShaderSet.colorUniform(name: String, v: Color) = ColorUniform(program!!, name, { v }).apply { uniforms += this }
+fun ShaderSet.booleanArrayUniform(name: String, v: List<Boolean>) = ArrayUniform(program!!, name, Uniforms.boolean, { v }).apply { uniforms += this }
+fun ShaderSet.intArrayUniform(name: String, v: List<Int>) = ArrayUniform(program!!, name, Uniforms.int, { v }).apply { uniforms += this }
+fun ShaderSet.floatArrayUniform(name: String, v: List<Float>) = ArrayUniform(program!!, name, Uniforms.float, { v }).apply { uniforms += this }
+fun ShaderSet.vector2ArrayUniform(name: String, v: List<Vector2>) = ArrayUniform(program!!, name, Uniforms.vector2, { v }).apply { uniforms += this }
+fun ShaderSet.vector3ArrayUniform(name: String, v: List<Vector3>) = ArrayUniform(program!!, name, Uniforms.vector3, { v }).apply { uniforms += this }
+fun ShaderSet.matrix3ArrayUniform(name: String, v: List<Matrix3>) = ArrayUniform(program!!, name, Uniforms.matrix3, { v }).apply { uniforms += this }
+fun ShaderSet.matrix4ArrayUniform(name: String, v: List<Matrix4>) = ArrayUniform(program!!, name, Uniforms.matrix4, { v }).apply { uniforms += this }
+fun ShaderSet.colorArrayUniform(name: String, v: List<Color>) = ArrayUniform(program!!, name, Uniforms.color, { v }).apply { uniforms += this }

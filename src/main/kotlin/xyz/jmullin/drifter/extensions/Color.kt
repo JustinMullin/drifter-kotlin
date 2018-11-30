@@ -2,7 +2,6 @@ package xyz.jmullin.drifter.extensions
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.utils.BufferUtils
-import xyz.jmullin.drifter.rendering.FloatColor
 import java.nio.FloatBuffer
 
 /**
@@ -14,10 +13,22 @@ fun C(r: Float, g: Float, b: Float, a: Float) = Color(r, g, b, a)
 fun C(c: Color, a: Float) = Color(c.r, c.g, c.b, a)
 fun C(i: Float) = Color(i, i, i, 1f)
 
-fun Cf(r: Float, g: Float, b: Float) = FloatColor(r, g, b, 1f)
-fun Cf(r: Float, g: Float, b: Float, a: Float) = FloatColor(r, g, b, a)
-fun Cf(c: Color, a: Float) = FloatColor(c.r, c.g, c.b, a)
-fun Cf(i: Float) = FloatColor(i, i, i, 1f)
+fun Ch(h: Float, s: Float, v: Float): Color {
+    val x = (h / 60f + 6) % 6
+    val i = x.toInt()
+    val f = x - i
+    val p = v * (1 - s)
+    val q = v * (1 - s * f)
+    val t = v * (1 - s * (1 - f))
+    return when (i) {
+        0 -> C(v, t, p)
+        1 -> C(q, v, p)
+        2 -> C(p, v, t)
+        3 -> C(p, q, v)
+        4 -> C(t, p, v)
+        else -> C(v, p, q)
+    }.clamp()
+}
 
 operator fun Color.plus(o: Color): Color = cpy().add(o.alpha(0f))
 operator fun Color.plus(n: Float): Color = cpy().add(n, n, n, 0f)
@@ -36,3 +47,4 @@ fun Color.toBuffer(): FloatBuffer {
     buffer.flip()
     return buffer
 }
+

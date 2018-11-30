@@ -35,6 +35,11 @@ val Rectangle.bottom get() = y
 val Rectangle.right get() = x+width
 val Rectangle.top get() = y+height
 
+val Rectangle.leftEdge get() = V2(x, y) to V2(x, y+height)
+val Rectangle.bottomEdge get() = V2(x, y) to V2(x+width, y)
+val Rectangle.rightEdge get() = V2(x+width, y) to V2(x+width, y+height)
+val Rectangle.topEdge get() = V2(x, y+height) to V2(x+width, y+height)
+
 val Rectangle.rightTop get() = V2(x+width, y+height)
 val Rectangle.leftTop get() = V2(x, y+height)
 val Rectangle.rightBottom get() = V2(x+width, y)

@@ -1,21 +1,24 @@
-version = "0.2-SNAPSHOT"
+version = "0.3-SNAPSHOT"
 group = "xyz.jmullin.drifter"
 
 buildscript {
     ext {
-        kotlinVersion = '1.1.4'
-        gdxVersion = '1.9.5'
+        kotlinVersion = '1.3.10'
+        gdxVersion = '1.9.9'
     }
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+"
     }
 }
 
 apply plugin: 'kotlin'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 repositories {
     mavenCentral()
@@ -36,14 +39,20 @@ artifacts {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+
     compile "com.badlogicgames.gdx:gdx:$gdxVersion"
     compile "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
     compile "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
+    compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = "3.1"
+wrapper {
+    gradleVersion = "4.3"
 }
+
 sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
 }
+
+apply from: 'install.gradle'
+apply from: 'bintray.gradle'

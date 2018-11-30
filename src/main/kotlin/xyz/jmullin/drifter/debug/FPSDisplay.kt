@@ -40,13 +40,13 @@ class FPSDisplay(val font: BitmapFont,
         layout.setText(font, "FPS: 100")
         val textBounds = V2(layout.width, layout.height)
 
-        val v = V2(5f) + (gameSize() - 10f - textBounds) * align
+        val v = gameSize()/2f + (gameSize()/2f-5f)*align
 
         font.color = color
         stage.draw(attachedStage) {
             Draw.fill.color = backgroundColor
-            sprite(Draw.fill, v - V2(5f), textBounds + V2(10f))
-            string("FPS: ${gameFps()}", v, font, V2(1, 1))
+//            sprite(Draw.fill, v - V2(5f), textBounds + V2(10f))
+            string("FPS: ${gameFps()}", v, font, -align)
         }
     }
 }

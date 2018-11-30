@@ -1,0 +1,34 @@
+group = 'xyz.jmullin'
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'jar'
+                groupId 'xyz.jmullin'
+                artifactId 'drifter'
+
+                name 'Drifter'
+                description 'Convenience extensions for LibGDX in Kotlin.'
+
+                licenses {
+                    license {
+                        name 'The MIT License (MIT)'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'jmullin'
+                        name 'Justin Mullin'
+                        email 'justinamullin@gmail.com'
+                    }
+                }
+                scm {
+                    connection 'https://github.com/JustinMullin/drifter-kotlin'
+                    developerConnection 'https://github.com/JustinMullin'
+                    url 'http://jmullin.xyz'
+                }
+            }
+        }
+    }
+}

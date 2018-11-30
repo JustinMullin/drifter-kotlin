@@ -19,3 +19,7 @@ build/
 # IDEA
 .idea
 *.iml
+
+# Bintray
+
+local.properties

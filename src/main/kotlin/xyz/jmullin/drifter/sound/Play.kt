@@ -11,6 +11,7 @@ import com.badlogic.gdx.audio.Sound as GdxSound
 object Play {
     var soundOn = true
     var musicOn = true
+    var multiplier = 0.6f
 
     /**
      * Play a sound (if sound effects are enabled).
@@ -20,7 +21,7 @@ object Play {
      * @return The ID of the played Sound.
      */
     fun sound(sound: GdxSound, volume: Float=1f, pitch: Float=1f): Long {
-        if(soundOn) return sound.play(volume).apply { if(pitch != 1f) sound.setPitch(this, pitch) }
+        if(soundOn) return sound.play(volume * multiplier).apply { if(pitch != 1f) sound.setPitch(this, pitch) }
         return -1
     }
 

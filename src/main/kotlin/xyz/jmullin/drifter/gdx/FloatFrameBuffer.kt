@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer
 /** This is a [FrameBuffer] variant backed by a float texture.  */
 class FloatFrameBuffer(width: Int, height: Int, hasDepth: Boolean) : FrameBuffer(null, width, height, hasDepth) {
 
-    override fun createColorTexture(): Texture {
+    override fun createTexture(attachmentSpec: FrameBufferTextureAttachmentSpec?): Texture {
         val data = FloatTextureData(width, height)
         val result = Texture(data)
         if (Gdx.app.type == ApplicationType.Desktop || Gdx.app.type == ApplicationType.Applet)

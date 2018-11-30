@@ -41,7 +41,7 @@ abstract class RenderStage(val tag: String, val shader: ShaderSet = Shaders.defa
     override fun hashCode(): Int {
         return tag.hashCode()
     }
-    
+
     open fun mouseV(me: Entity2D) = V2(0f)
 }
 
@@ -72,10 +72,10 @@ data class TargetBuffer(val tag: String,
                         val backgroundColor: Color = Color.BLACK)
 
 class SimpleBufferStage(tag: String,
-                        filter: Texture.TextureFilter,
-                        hdr: Boolean,
-                        backgroundColor: Color,
-                        size: Vector2,
+                        filter: Texture.TextureFilter = Texture.TextureFilter.Nearest,
+                        hdr: Boolean = false,
+                        backgroundColor: Color = Color.BLACK,
+                        size: Vector2 = gameSize(),
                         shader: ShaderSet = Shaders.default) : BufferStage(tag, shader) {
 
     private val buffer = if(hdr) {

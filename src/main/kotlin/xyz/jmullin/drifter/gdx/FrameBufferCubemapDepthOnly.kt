@@ -2,11 +2,8 @@ package xyz.jmullin.drifter.gdx
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Gdx.gl30
-import com.badlogic.gdx.graphics.Cubemap
-import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.GL20.GL_NONE
-import com.badlogic.gdx.graphics.GL30
-import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.glutils.GLOnlyTextureData
 import com.badlogic.gdx.utils.GdxRuntimeException
 import org.lwjgl.opengl.GL11
@@ -23,7 +20,7 @@ class FrameBufferCubemapDepthOnly(val width: Int, val height: Int) {
     }
 
     private fun createDepthTexture(): Cubemap {
-        val data = GLOnlyTextureData(width, height, 0, GL30.GL_DEPTH_COMPONENT24, GL30.GL_DEPTH_COMPONENT, GL30.GL_FLOAT)
+        val data = GLOnlyTextureData(width, height, 0, GL30.GL_DEPTH_COMPONENT32F, GL30.GL_DEPTH_COMPONENT, GL30.GL_FLOAT)
         return Cubemap(data, data, data, data, data, data)
     }
 
@@ -31,6 +28,7 @@ class FrameBufferCubemapDepthOnly(val width: Int, val height: Int) {
         val gl = Gdx.gl20
 
         texture = createDepthTexture()
+        texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
 
         framebufferHandle = gl.glGenFramebuffer()
         gl.glBindFramebuffer(GL20.GL_FRAMEBUFFER, framebufferHandle)

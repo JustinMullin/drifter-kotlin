@@ -11,12 +11,13 @@ import java.util.*
  * A global [[Random]] instance with a nanotime seed is available at RandomUtil.Implicits.global if you prefer
  * not to supply your own.
  */
-val r = Random()
+var r = Random()
 
 fun probability(p: Double) = r.nextDouble() <= p
 fun probability(p: Float) = r.nextFloat() <= p
 fun rInt(n: Int) = r.nextInt(n)
 fun rInt(n:Int, m:Int) = if(n == m) n else n+r.nextInt(m-n)
+fun rInt(r: ClosedRange<Int>) = rInt(r.start, r.endInclusive)
 fun rFloat(n: Float) = r.nextFloat()*n
 fun rFloat(n: Float, m: Float): Float = n+r.nextFloat()*(m-n)
 fun <T> rElement(s: Iterable<T>) = s.toList().let { it[rInt(it.size)] }

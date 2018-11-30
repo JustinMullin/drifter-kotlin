@@ -22,7 +22,8 @@ fun V2(xy: Pair<Number, Number>) = Vector2(xy.first.toFloat(), xy.second.toFloat
 val Vector2.xI: Int get() = x.toInt()
 val Vector2.yI: Int get() = y.toInt()
 
-val range = V2(0, 0)..V2(10, 10)
+operator fun Vector2.component1() = x
+operator fun Vector2.component2() = y
 
 operator fun Vector2.plus(o: Vector2): Vector2 = cpy().add(o)
 operator fun Vector2.plus(n: Float): Vector2 = cpy().add(n, n)
@@ -38,12 +39,23 @@ operator fun Vector2.unaryMinus() = inverse()
 operator fun Vector2.rangeTo(v: Vector2) = (yI..v.yI).flatMap { y -> (xI..v.xI).map { x -> Pair(x, y) } }.map(::V2)
 infix fun Vector2.until(v: Vector2) = this.rangeTo(v - V2(1f))
 
+fun Vector2.towards(v: Vector2, amount: Float): Float {
+    val distance = distanceTo(v)
+    return if(amount <= distance) {
+        lerp(v, amount / distance)
+        0f
+    } else {
+        set(v)
+        distance - amount
+    }
+}
+
 val Left = V2(-1f, 0f)
 val Right = V2(1f, 0f)
 val Up = V2(0f, 1f)
 val Down = V2(0f, -1f)
 
-fun nameDir(v: Vector2) = if(v == Up) "UP" else if(v == Down) "Down" else if(v == Right) "Right" else if(v == Left) "Left" else v.toString()
+fun nameDir(v: Vector2) = if(v == Up) "Up" else if(v == Down) "Down" else if(v == Right) "Right" else if(v == Left) "Left" else v.toString()
 
 fun Vector2.abs() = V2(mAbs(x), mAbs(y))
 fun Vector2.inverse() = (this * -1f).fixZeroes()

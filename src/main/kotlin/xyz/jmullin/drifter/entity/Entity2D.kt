@@ -89,7 +89,7 @@ open class Entity2D : EntityContainer2D, Entity() {
     /**
      * Remove this entity from its parent container, if any.
      */
-    fun remove() {
+    open fun remove() {
         layer()?.remove(this)
         parent = null
     }

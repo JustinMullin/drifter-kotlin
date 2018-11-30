@@ -1,0 +1,32 @@
+apply plugin: 'com.jfrog.bintray'
+
+version = '0.3'
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+// Bintray
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = 'drifter'
+        name = 'drifter'
+        desc = 'Convenience extensions for LibGDX in Kotlin'
+        vcsUrl = 'https://github.com/JustinMullin/drifter-kotlin'
+        licenses = ["MIT"]
+        publish = true
+        publicDownloadNumbers = true
+    }
+}

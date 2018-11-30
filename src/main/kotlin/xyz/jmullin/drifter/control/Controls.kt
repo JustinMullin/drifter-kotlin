@@ -6,7 +6,7 @@ import com.badlogic.gdx.controllers.Controller
 import com.badlogic.gdx.controllers.ControllerAdapter
 import xyz.jmullin.drifter.extensions.FloatMath
 
-class Controls(val assigned: Controller?, val mappings: List<Mapping>) {
+open class Controls(val assigned: Controller?, val mappings: List<Mapping>) {
     val controllerAdapter = object : ControllerAdapter() {
         override fun buttonDown(controller: Controller?, buttonCode: Int): Boolean {
             if(controller == assigned) {

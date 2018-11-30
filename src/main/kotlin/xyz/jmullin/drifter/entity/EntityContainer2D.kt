@@ -37,9 +37,10 @@ interface EntityContainer2D : DrifterInput {
      * @param e Entity to add.
      * @return The added entity.
      */
-    fun <T : Entity2D> add(e: T): T {
+    fun <T : Entity2D> add(e: T, init: Entity2D.() -> Unit = {}): T {
         children += e
         e.parent = this
+        e.init()
         e.create(this)
         return e
     }
