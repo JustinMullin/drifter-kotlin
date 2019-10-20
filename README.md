@@ -4,9 +4,5 @@ Drifter is a set of convenience classes, extensions, and utility methods for use
 for my personal use, mainly in [Ludum Dare][2] and other game jams.  The intention is to enable super rapid game development 
 in Kotlin, with a strong preference for convenience and succinctness over performance or really anything else.
 
-This library is very far from complete.  Some of the features are fairly half-baked and may be badly implemented.  Some may 
-not work.   I only add features here when I need 'em for some project.  You're welcome to submit PRs, but I can't guarantee 
-I'll merge frequently or at all.
-
  [1]: http://libgdx.badlogicgames.com
  [2]: http://ludumdare.com/
