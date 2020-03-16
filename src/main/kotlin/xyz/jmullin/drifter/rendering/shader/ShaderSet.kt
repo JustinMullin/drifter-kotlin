@@ -18,7 +18,10 @@ import xyz.jmullin.drifter.rendering.shader.delegate.UniformDelegate
  * @param fragmentShaderName Filename of the fragment shader to load.
  * @param vertexShaderName Filename of the vertex shader to load.
  */
-open class ShaderSet(private val fragmentShaderName: String, private val vertexShaderName: String = "default") {
+open class ShaderSet(
+    private val fragmentShaderName: String,
+    private val vertexShaderName: String = "default"
+) {
     var uniforms = emptyList<ShaderUniform<*>>()
 
     private val vert = Gdx.files.internal("shader/$vertexShaderName.vert")!!
@@ -38,7 +41,7 @@ open class ShaderSet(private val fragmentShaderName: String, private val vertexS
         compile()
     }
 
-    /**
+    /*
      * Compile the shader program from the specified source.
      */
     private fun compile() {

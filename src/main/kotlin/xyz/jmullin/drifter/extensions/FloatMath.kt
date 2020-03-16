@@ -1,5 +1,8 @@
 package xyz.jmullin.drifter.extensions
 
+import com.badlogic.gdx.math.Vector2
+import java.text.DecimalFormat
+
 /*
  * Copyright 2015 Michael Rozumyanskiy
  *
@@ -17,6 +20,7 @@ package xyz.jmullin.drifter.extensions
  */
 val Pi: Float = Math.PI.toFloat()
 val E: Float = Math.E.toFloat()
+val LooseEpsilon = 0.01f
 val Epsilon = 0.00000001f
 
 fun Float.sin(): Float = FloatMath.sin(this)
@@ -58,6 +62,8 @@ fun Float.fEq(o: Float): Boolean = Math.abs(this-o) <= Epsilon
 fun Float.lerp(b: Float, alpha: Float): Float = this + (b-this) * alpha
 fun Float.lerpRelative(b: Float, c: Float): Float = FloatMath.lerp(this, b, FloatMath.alpha(this, b, c))
 fun Float.alpha(b: Float, c: Float): Float = (c - this) / (b - this)
+fun Float.reduce(a: Float) = if (this > 0f) FloatMath.max(0f, this - a) else FloatMath.min(0f, this + a)
+fun Float.increase(a: Float) = if (this >= 0f) this + a else this - a
 
 object FloatMath {
     fun abs(value: Float): Float = Math.abs(value)
@@ -75,7 +81,7 @@ object FloatMath {
     fun atan2(x: Float, y: Float): Float = Math.atan2(x.toDouble(), y.toDouble()).toFloat()
     fun pow(x: Float, y: Float): Float = Math.pow(x.toDouble(), y.toDouble()).toFloat()
     fun ceil(x: Float): Float = Math.ceil(x.toDouble()).toFloat()
-    fun floor(x: Float): Float = Math.floor(x.toDouble()).toFloat()
+    fun floor(x: Float): Float = Math.floor(x.toDouble()).toInt().toFloat()
     fun toRadians(angdeg: Float): Float = Math.toRadians(angdeg.toDouble()).toFloat()
     fun toDegrees(angrad: Float): Float = Math.toDegrees(angrad.toDouble()).toFloat()
     fun exp(x: Float): Float = Math.exp(x.toDouble()).toFloat()

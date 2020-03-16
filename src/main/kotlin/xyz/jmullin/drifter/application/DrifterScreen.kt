@@ -71,7 +71,7 @@ open class DrifterScreen : DrifterInput, Screen {
         var next = root.dependencies().flatMap { it.dependencies() }
         while(next.isNotEmpty()) {
             stages += next
-            next = next.flatMap { it.dependencies() }
+            next = next.flatMap { it.dependencies() }.filterNot(stages::contains)
         }
         return stages.reversed().distinct()
     }
@@ -148,4 +148,5 @@ open class DrifterScreen : DrifterInput, Screen {
     override fun hide() {}
     override fun pause() {}
     override fun resume() {}
+
 }

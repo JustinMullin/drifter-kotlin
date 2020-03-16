@@ -30,7 +30,7 @@ import xyz.jmullin.drifter.assets.delegates.*
  *
  * @param atlasName Optional filename of the TextureAtlas to load sprites from.
  */
-open class DrifterAssets(atlasName: String? = null) {
+open class DrifterAssets(atlasName: String? = null, private val defaultFilter: Texture.TextureFilter = Texture.TextureFilter.Linear) {
     val manager = AssetManager()
 
     var primaryAtlas: TextureAtlas? = null
@@ -42,6 +42,7 @@ open class DrifterAssets(atlasName: String? = null) {
     val skin: SkinDelegate get() = SkinDelegate(this)
     val sound: SoundDelegate get() = SoundDelegate(this)
     val sprite: SpriteDelegate get() = SpriteDelegate(this)
+    val ninePatch: NinePatchDelegate get() = NinePatchDelegate(this)
     val pixmap: PixmapDelegate get() = PixmapDelegate(this)
     val textureAtlas: TextureAtlasDelegate get() = TextureAtlasDelegate(this)
     val texture: TextureDelegate get() = TextureDelegate(this)
@@ -53,6 +54,7 @@ open class DrifterAssets(atlasName: String? = null) {
     fun skin(name: String) = SkinDelegate(name, this)
     fun sound(name: String) = SoundDelegate(name, this)
     fun sprite(name: String) = SpriteDelegate(name, this)
+    fun ninePatch(name: String) = NinePatchDelegate(name, this)
     fun pixmap(name: String) = PixmapDelegate(name, this)
     fun textureAtlas(name: String) = TextureAtlasDelegate(name, this)
     fun texture(name: String, extension: String="png") = TextureDelegate(name, extension, this)
@@ -96,26 +98,13 @@ open class DrifterAssets(atlasName: String? = null) {
      */
     fun populateAtlas() {
         primaryAtlas = atlasPath.let { path ->
-            manager.get(path, TextureAtlas::class.java)
+            manager.get(path, TextureAtlas::class.java).apply {
+                textures.forEach { it.setFilter(defaultFilter, defaultFilter) }
+            }
         }
     }
 
     fun dispose() {
         primaryAtlas?.dispose()
-    }
-
-    companion object DrifterAssets {
-        /**
-         * Map of classes to asset types.  Currently the assumption is a single type of asset will always correspond
-         * to a single well-defined path and file extension.
-         */
-        val PrefixMap = mapOf<Class<*>, AssetType>(
-            Texture::class.java to AssetType("texture/", ".png"),
-            BitmapFont::class.java to AssetType("font/", ".fnt"),
-            Sound::class.java to AssetType("sound/", ".wav"),
-            Music::class.java to AssetType("music/", ".ogg"),
-            Skin::class.java to AssetType("skin/", ".json"),
-            TextureAtlas::class.java to AssetType("atlas/", ".atlas")
-        )
     }
 }

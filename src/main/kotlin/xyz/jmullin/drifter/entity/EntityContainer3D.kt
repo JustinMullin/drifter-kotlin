@@ -18,7 +18,7 @@ interface EntityContainer3D : DrifterInput {
     /**
      * List of all attached children.
      */
-    var children: List<Entity3D>
+    val children: MutableList<Entity3D>
 
     /**
      * If defined, the position the cursor should be locked to for picking purposes.
@@ -31,7 +31,7 @@ interface EntityContainer3D : DrifterInput {
      * @param e Entity to remove.
      */
     fun remove(e: Entity3D) {
-        children = children.filterNot { it == e }
+        children.removeIf { it == e }
         children.forEach { it.remove(e) }
         e.parent = null
     }

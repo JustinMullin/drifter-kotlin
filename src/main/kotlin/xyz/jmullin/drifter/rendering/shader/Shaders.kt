@@ -30,3 +30,7 @@ object Shaders {
 fun shader(fragShader: String, vertShader: String = "default", init: ShaderSet.() -> Unit = {}): ShaderSet {
     return ShaderSet(fragShader, vertShader).apply(init)
 }
+
+fun shaderCombined(name: String, init: ShaderSet.() -> Unit = {}): ShaderSet {
+    return ShaderSet(name).apply(init)
+}

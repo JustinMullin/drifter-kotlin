@@ -7,9 +7,8 @@ import java.util.*
  */
 @Suppress("UNUSED_PARAMETER", "UNUSED_VARIABLE")
 open class Pathfinder<State>(
-        val heuristic: (State, State) -> Float,
-        val neighbors: (State) -> Collection<State>,
-        val cost: (State, State) -> Float) {
+        val heuristic: (State) -> Float,
+        val neighbors: (State) -> Collection<Pair<State, Float>>) {
 
     data class PathEntry<State>(val state: State, val estimatedCost: Float = 0f) : Comparable<PathEntry<State>> {
         override fun compareTo(other: PathEntry<State>) = estimatedCost.compareTo(other.estimatedCost)
@@ -17,31 +16,34 @@ open class Pathfinder<State>(
 
     data class Path<out State>(val steps: List<State>)
 
-    fun findPath(graph: Collection<State>, start: State, goal: State): Path<State> {
+    fun findPath(start: State, isGoal: (State) -> Boolean): Path<State> {
         val frontier = PriorityQueue<PathEntry<State>>()
         frontier.add(PathEntry(start, 0f))
 
-        var cameFrom = mapOf<State, State?>(Pair(start, null))
-        var costSoFar = mapOf(Pair(start, 0f))
+        val cameFrom = mutableMapOf<State, State?>(start to null)
+        val costSoFar = mutableMapOf(start to 0f)
+        var goalState: State? = null
 
         while (frontier.isNotEmpty()) {
             val (c, p) = frontier.poll()
             val current = c!!
 
-            if(current == goal) break
-
-            for (next in neighbors(current)) {
-                val newCost = costSoFar[current]!! + cost(current, next)
-                if(!costSoFar.contains(next) || newCost < costSoFar[next]!!) {
+            if(isGoal(current)) {
+                goalState = current
+                break
+            }
+            for ((next, cost) in neighbors(current)) {
+                val newCost = costSoFar[current]!! + cost
+                if(!costSoFar.contains(next) || newCost < costSoFar.getValue(next)) {
                     costSoFar += Pair(next, newCost)
-                    val priority = newCost + heuristic(goal, next)
+                    val priority = newCost + heuristic(next)
                     frontier.offer(PathEntry(next, priority))
                     cameFrom += Pair(next, current)
                 }
             }
         }
 
-        return reconstructPath(goal, cameFrom)
+        return reconstructPath(goalState!!, cameFrom)
     }
 
     fun reconstructPath(goal: State, cameFrom: Map<State, State?>): Path<State> {

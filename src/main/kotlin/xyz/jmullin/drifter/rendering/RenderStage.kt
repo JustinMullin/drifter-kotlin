@@ -20,6 +20,7 @@ abstract class RenderStage(val tag: String, val shader: ShaderSet = Shaders.defa
 
     abstract fun begin()
     abstract fun end()
+    open fun resize(newSize: Vector2) {}
 
     fun draw(targetStage: RenderStage, stage: SpriteBatch.() -> Unit) {
         if(targetStage == this) {
@@ -48,9 +49,15 @@ abstract class RenderStage(val tag: String, val shader: ShaderSet = Shaders.defa
 abstract class BufferStage(tag: String, shader: ShaderSet = Shaders.default) : RenderStage(tag, shader) {
     var sources = listOf<BufferStage>()
     var fill = false
+    var clear = true
 
     fun attachFrom(vararg bufferStage: BufferStage): BufferStage {
         bufferStage.forEach { sources += it }
+        return this
+    }
+
+    fun attachSelf(): BufferStage {
+        sources += this
         return this
     }
 
@@ -72,16 +79,25 @@ data class TargetBuffer(val tag: String,
                         val backgroundColor: Color = Color.BLACK)
 
 class SimpleBufferStage(tag: String,
-                        filter: Texture.TextureFilter = Texture.TextureFilter.Nearest,
-                        hdr: Boolean = false,
+                        val filter: Texture.TextureFilter = Texture.TextureFilter.Nearest,
+                        val hdr: Boolean = false,
                         backgroundColor: Color = Color.BLACK,
-                        size: Vector2 = gameSize(),
+                        var size: Vector2 = gameSize(),
                         shader: ShaderSet = Shaders.default) : BufferStage(tag, shader) {
 
-    private val buffer = if(hdr) {
-        FloatFrameBuffer(size.xI, size.yI, true)
-    } else {
-        FrameBuffer(Pixmap.Format.RGBA8888, size.xI, size.yI, true)
+    private var buffer = createBuffer()
+    private lateinit var texture: Texture
+
+    private fun createBuffer(): FrameBuffer {
+        return if(hdr) {
+            FloatFrameBuffer(size.xI, size.yI, true)
+        } else {
+            FrameBuffer(Pixmap.Format.RGBA8888, size.xI, size.yI, true)
+        }.also {
+            texture = it.colorBufferTexture.apply {
+                setFilter(filter, filter)
+            }
+        }
     }
 
     override fun begin() { buffer.begin() }
@@ -89,31 +105,42 @@ class SimpleBufferStage(tag: String,
 
     override val targets = listOf(TargetBuffer(tag, filter, backgroundColor))
 
-    val texture: Texture by lazy {
-        buffer.colorBufferTexture.apply {
-            setFilter(filter, filter)
-        }
-    }
+    override fun textures() = listOf(tag to texture)
 
+    override fun resize(newSize: Vector2) {
+        size = newSize
+        buffer = createBuffer()
+    }
+}
+
+class FixedStage(tag: String, val texture: Texture) : BufferStage(tag) {
+    override fun begin() {}
+    override fun end() {}
+
+    override val targets: List<TargetBuffer> get() = emptyList()
     override fun textures() = listOf(tag to texture)
 }
 
 class PingPongBufferStage(tag: String,
                           filter: Texture.TextureFilter,
-                          hdr: Boolean,
+                          val hdr: Boolean,
                           val iterations: Int,
                           val initialSource: () -> Texture,
                           backgroundColor: Color,
-                          size: Vector2,
+                          var size: Vector2,
                           shader: ShaderSet = Shaders.default) : BufferStage(tag, shader) {
 
     var ping = false
 
-    private val buffers = (0..1).map {
-        if(hdr) {
-            FloatFrameBuffer(size.xI, size.yI, true)
-        } else {
-            FrameBuffer(Pixmap.Format.RGBA8888, size.xI, size.yI, true)
+    private var buffers = createBuffers()
+
+    private fun createBuffers(): List<FrameBuffer> {
+        return (0..1).map {
+            if(hdr) {
+                FloatFrameBuffer(size.xI, size.yI, true)
+            } else {
+                FrameBuffer(Pixmap.Format.RGBA8888, size.xI, size.yI, true)
+            }
         }
     }
 
@@ -138,13 +165,22 @@ class PingPongBufferStage(tag: String,
     val texture: Texture get() = activeTexture
 
     override fun textures() = listOf(tag to texture)
+
+    override fun resize(newSize: Vector2) {
+        size = newSize
+        buffers = createBuffers()
+    }
 }
 
 class MultiTargetBufferStage(tag: String,
-                             size: Vector2,
+                             var size: Vector2,
                              shader: ShaderSet = Shaders.default,
                              override val targets: List<TargetBuffer>) : BufferStage(tag, shader) {
-    private val buffer = MultiTargetFrameBuffer(size.xI, size.yI, targets.map { it.tag })
+    private var buffer = createBuffer()
+
+    private fun createBuffer(): MultiTargetFrameBuffer {
+        return MultiTargetFrameBuffer(size.xI, size.yI, targets.map { it.tag })
+    }
 
     override fun begin() { buffer.begin() }
     override fun end() { buffer.end() }
@@ -156,16 +192,21 @@ class MultiTargetBufferStage(tag: String,
     }
 
     override fun textures() = targets.zip(textures).map { it.first.tag to it.second }
+
+    override fun resize(newSize: Vector2) {
+        size = newSize
+        buffer = createBuffer()
+    }
 }
 
-class BlitStage(tag: String, val sources: List<BufferStage>, shader: ShaderSet = Shaders.default) : RenderStage(tag, shader) {
+class BlitStage(tag: String, val sources: List<BufferStage>, shader: ShaderSet = Shaders.default, val blitOp: ((SpriteBatch) -> Unit)? = null) : RenderStage(tag, shader) {
     override fun dependencies() = sources
 
     override fun begin() {}
     override fun end() {}
 }
 
-class DrawStage(tag: String, shader: ShaderSet = Shaders.default) : RenderStage(tag, shader) {
+class DrawStage(tag: String, shader: ShaderSet = Shaders.default, val perspective: Boolean = false) : RenderStage(tag, shader) {
     override fun dependencies() = emptyList<RenderStage>()
 
     override fun begin() {}

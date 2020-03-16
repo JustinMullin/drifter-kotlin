@@ -18,10 +18,10 @@ import xyz.jmullin.drifter.extensions.V3
  * @param viewportSize Size of the viewport to use in drawing the world.
  */
 open class Layer3D(override val index: Int,
-                   override final val viewportSize: Vector2,
+                   final override val viewportSize: Vector2,
                    shaderProvider: ShaderProvider = DefaultShaderProvider(),
                    cameraProvider: (Vector2) -> Camera = { size -> PerspectiveCamera(67f, size.x, size.y) }) : EntityContainer3D, Layer {
-    override var children = emptyList<Entity3D>()
+    override val children = mutableListOf<Entity3D>()
     override var mouseLocked: Vector2? = null
 
     // Self reference for containership

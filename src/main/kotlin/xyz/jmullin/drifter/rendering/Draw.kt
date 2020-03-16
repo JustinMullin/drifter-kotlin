@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack
-import com.badlogic.gdx.utils.Align
 import xyz.jmullin.drifter.entity.Layer2D
 import xyz.jmullin.drifter.extensions.*
 import xyz.jmullin.drifter.gl.Blend
@@ -31,6 +30,16 @@ object Draw {
      * Shared PolygonSpriteBatch for rendering polygons.
      */
     internal val polygonBatch = PolygonSpriteBatch(2000, Shaders.default.program)
+
+    /**
+     * Generates a single-pixel texture filled with the specified color.
+     */
+    fun colorTexture(c: Color): Texture {
+        val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
+        pixmap.setColor(c)
+        pixmap.fill()
+        return Texture(pixmap)
+    }
 
     /**
      * Simple 1px white fill sprite for drawing filled regions.
@@ -77,6 +86,8 @@ fun SpriteBatch.sprite(patch: NinePatch, bounds: Rectangle) {
     patch.draw(this, bounds.x, bounds.y, bounds.width, bounds.height)
 }
 
+
+
 /**
  * Draw a texture at a given position and size.
  */
@@ -102,7 +113,7 @@ fun SpriteBatch.texture(texture: Texture, v: Vector2, size: Vector2, uvA: Vector
  * Draw a texture with given bounds and texture coords.
  */
 fun SpriteBatch.texture(texture: Texture, bounds: Rectangle, uvA: Vector2, uvB: Vector2) {
-    draw(texture, bounds.x, bounds.y, bounds.x, bounds.y, uvA.x, uvA.y, uvB.x, uvB.y)
+    draw(texture, bounds.x, bounds.y, bounds.width, bounds.height, uvA.x, uvA.y, uvB.x, uvB.y)
 }
 
 /**
@@ -157,6 +168,26 @@ fun SpriteBatch.line(a: Vector2, b: Vector2, thickness: Float, color: Color) {
         b - dir.cpy().rotate(90f) * thickness*0.5f,
         b + dir.cpy().rotate(90f) * thickness*0.5f,
         color)
+}
+
+/**
+ * Draws a textured triangle with the given vertices and texture coordinates.
+ */
+fun SpriteBatch.triangle(texture: Texture,
+                         a: Vector2, b: Vector2, c: Vector2,
+                         uvA: Vector2, uvB: Vector2, uvC: Vector2,
+                         color: Color = Color.WHITE) {
+    val col = color.toFloatBits()
+
+    // Really we're drawing a quad with one vertex duplicated,
+    // just 'cause that's what SpriteBatch is good at
+    val vertices = floatArrayOf(
+        a.x, a.y, col, uvA.x, uvA.y,
+        b.x, b.y, col, uvB.x, uvB.y,
+        c.x, c.y, col, uvC.x, uvC.y,
+        a.x, a.y, col, uvA.x, uvA.y)
+
+    draw(texture, vertices, 0, vertices.size)
 }
 
 /**
@@ -253,9 +284,9 @@ fun SpriteBatch.string(str: String, v: Vector2, font: BitmapFont, align: Vector2
 /**
  * Draw a string with the given location, font and alignment, wrapped to the specified width.
  */
-fun SpriteBatch.stringWrapped(str: String, v: Vector2, width: Float, font: BitmapFont, align: Vector2) {
-    Draw.layout.setText(font, str, font.color, width, Align.center, true)
-    font.draw(this, str, v.x + (align.x - 1) * Draw.layout.width * 0.5f, v.y + (align.y + 1) * Draw.layout.height * 0.5f, width, Align.center, true)
+fun SpriteBatch.stringWrapped(str: String, v: Vector2, width: Float, font: BitmapFont, align: Vector2, textAlign: Int) {
+    Draw.layout.setText(font, str, font.color, width, textAlign, true)
+    font.draw(this, str, v.x + (align.x - 1) * Draw.layout.width * 0.5f, v.y + (align.y + 1) * Draw.layout.height * 0.5f, width, textAlign, true)
 }
 
 /**
