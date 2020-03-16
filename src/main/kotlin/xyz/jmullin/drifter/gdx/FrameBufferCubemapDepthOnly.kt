@@ -6,8 +6,8 @@ import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.GL20.GL_NONE
 import com.badlogic.gdx.graphics.glutils.GLOnlyTextureData
 import com.badlogic.gdx.utils.GdxRuntimeException
-import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL32
+//import org.lwjgl.opengl.GL11
+//import org.lwjgl.opengl.GL32
 
 class FrameBufferCubemapDepthOnly(val width: Int, val height: Int) {
 
@@ -33,9 +33,9 @@ class FrameBufferCubemapDepthOnly(val width: Int, val height: Int) {
         framebufferHandle = gl.glGenFramebuffer()
         gl.glBindFramebuffer(GL20.GL_FRAMEBUFFER, framebufferHandle)
 
-        GL32.glFramebufferTexture(GL20.GL_FRAMEBUFFER, GL20.GL_DEPTH_ATTACHMENT, texture.textureObjectHandle, 0)
-
-        org.lwjgl.opengl.GL11.glDrawBuffer(GL11.GL_NONE)
+//        GL32.glFramebufferTexture(GL20.GL_FRAMEBUFFER, GL20.GL_DEPTH_ATTACHMENT, texture.textureObjectHandle, 0)
+//
+//        org.lwjgl.opengl.GL11.glDrawBuffer(GL11.GL_NONE)
         gl30.glReadBuffer(GL_NONE)
 
         gl.glBindRenderbuffer(GL20.GL_RENDERBUFFER, 0)

@@ -20,7 +20,7 @@ open class Entity3D : EntityContainer3D, Entity() {
     fun self() = this
     override fun layer() = parent?.layer()
 
-    override var children = emptyList<Entity3D>()
+    override val children = mutableListOf<Entity3D>()
     override var mouseLocked: Vector2? = null
 
     /**

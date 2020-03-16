@@ -30,10 +30,22 @@ class FPSDisplay(val font: BitmapFont,
 
     private val layout = GlyphLayout()
 
+    private var frame = 0f
+
     override fun create(container: EntityContainer2D) {
         if(!drifter().devMode) remove()
 
         super.create(container)
+    }
+
+    override fun update(delta: Float) {
+        frame += delta
+        if(frame >= 1f) {
+            frame -= 1f
+//            println("FPS: ${gameFps()}")
+        }
+
+        super.update(delta)
     }
 
     override fun render(stage: RenderStage) {

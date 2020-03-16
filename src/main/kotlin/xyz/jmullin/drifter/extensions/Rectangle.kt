@@ -1,5 +1,6 @@
 package xyz.jmullin.drifter.extensions
 
+import com.badlogic.gdx.math.Matrix3
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 
@@ -11,6 +12,16 @@ fun Rect(v: Vector2, size: Vector2) = Rectangle(v.x, v.y, size.x, size.y)
 fun Rect(v: Float, size: Float) = Rect(V2(v), V2(size))
 fun Rect(size: Vector2) = Rect(V2(0f), size)
 fun Rect(size: Float) = Rect(V2(0f), V2(size))
+
+operator fun Rectangle.plus(o: Vector2): Rectangle = Rect(position + o, size)
+operator fun Rectangle.plus(n: Float): Rectangle = Rect(position + n, size)
+operator fun Rectangle.minus(o: Vector2): Rectangle = Rect(position - o, size)
+operator fun Rectangle.minus(n: Float): Rectangle = Rect(position + n, size)
+operator fun Rectangle.times(o: Vector2): Rectangle = Rect(position * o, size)
+operator fun Rectangle.times(n: Float): Rectangle = Rect(position * n, size)
+operator fun Rectangle.times(m: Matrix3): Rectangle = Rect(position * m, size)
+operator fun Rectangle.div(o: Vector2): Rectangle = Rect(position / o, size)
+operator fun Rectangle.div(n: Float): Rectangle = Rect(position / n, size)
 
 fun Vector2.rect(size: Vector2, align: Vector2 = V2(1f)) = Rect(this + (align - 1f) * size / 2f, size)
 fun Vector2.rect(size: Float, align: Vector2 = V2(1f)) = rect(V2(size), align)
@@ -26,6 +37,9 @@ fun Rectangle.inset(amount: Vector2) = Rect(position + amount, size - amount * 2
 
 fun Rectangle.expand(amount: Float) = Rect(position - amount, size + amount * 2f)
 fun Rectangle.expand(amount: Vector2) = Rect(position - amount, size + amount * 2f)
+
+fun Rectangle.translate(dX: Float, dY: Float) = Rect(x+dX, y+dY, width, height)
+private fun Rectangle.translate(dV: Vector2) = Rect(x+dV.x, y+dV.y, width, height)
 
 fun Rectangle.flipX() = Rect(x + width, y, -width, height)
 fun Rectangle.flipY() = Rect(x, y + height, width, -height)

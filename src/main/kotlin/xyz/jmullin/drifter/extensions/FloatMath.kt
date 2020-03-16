@@ -17,6 +17,7 @@ package xyz.jmullin.drifter.extensions
  */
 val Pi: Float = Math.PI.toFloat()
 val E: Float = Math.E.toFloat()
+val LooseEpsilon = 0.01f
 val Epsilon = 0.00000001f
 
 fun Float.sin(): Float = FloatMath.sin(this)
@@ -75,7 +76,7 @@ object FloatMath {
     fun atan2(x: Float, y: Float): Float = Math.atan2(x.toDouble(), y.toDouble()).toFloat()
     fun pow(x: Float, y: Float): Float = Math.pow(x.toDouble(), y.toDouble()).toFloat()
     fun ceil(x: Float): Float = Math.ceil(x.toDouble()).toFloat()
-    fun floor(x: Float): Float = Math.floor(x.toDouble()).toFloat()
+    fun floor(x: Float): Float = Math.floor(x.toDouble()).toInt().toFloat()
     fun toRadians(angdeg: Float): Float = Math.toRadians(angdeg.toDouble()).toFloat()
     fun toDegrees(angrad: Float): Float = Math.toDegrees(angrad.toDouble()).toFloat()
     fun exp(x: Float): Float = Math.exp(x.toDouble()).toFloat()

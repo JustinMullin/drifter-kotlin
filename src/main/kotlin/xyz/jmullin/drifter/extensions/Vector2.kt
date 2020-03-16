@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Matrix3
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import xyz.jmullin.drifter.geometry.VectorHex
+import kotlin.math.abs
 import xyz.jmullin.drifter.extensions.FloatMath.abs as mAbs
 import xyz.jmullin.drifter.extensions.FloatMath.ceil as mCeil
 import xyz.jmullin.drifter.extensions.FloatMath.floor as mFloor
@@ -55,6 +56,8 @@ val Right = V2(1f, 0f)
 val Up = V2(0f, 1f)
 val Down = V2(0f, -1f)
 
+val Vector2.aspectRatio get() = x / y
+
 fun nameDir(v: Vector2) = if(v == Up) "Up" else if(v == Down) "Down" else if(v == Right) "Right" else if(v == Left) "Left" else v.toString()
 
 fun Vector2.abs() = V2(mAbs(x), mAbs(y))
@@ -73,6 +76,7 @@ fun Vector2.round() = V2(mRound(x), mRound(y)).fixZeroes()
 
 fun Vector2.neighbors() = (V2(-1, -1)..V2(1, 1)).filter { !it.isZero }.map { this + it }
 fun Vector2.orthogonal() = (V2(-1, -1)..V2(1, 1)).filter { it.len() == 1f }.map { this + it }
+fun Vector2.diagonal() = (V2(-1, -1)..V2(1, 1)).filter { (abs(it.x) + abs(it.y) == 2f) }.map { this + it }
 
 fun Vector2.snap(scale: Float=1f) = V2(mFloor(x/scale), mFloor(y/scale)) * scale
 fun Vector2.snap(scale: Vector2) = (this / scale).floor() * scale

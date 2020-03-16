@@ -1,159 +1,141 @@
 package xyz.jmullin.drifter.control
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.InputAdapter
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.controllers.Controller
-import com.badlogic.gdx.controllers.ControllerAdapter
+import com.badlogic.gdx.math.Vector2
 import xyz.jmullin.drifter.extensions.FloatMath
+import xyz.jmullin.drifter.extensions.V2
+import xyz.jmullin.drifter.extensions.abs
 
-open class Controls(val assigned: Controller?, val mappings: List<Mapping>) {
-    val controllerAdapter = object : ControllerAdapter() {
-        override fun buttonDown(controller: Controller?, buttonCode: Int): Boolean {
-            if(controller == assigned) {
-                mappings.forEach { mapping ->
-                    if (mapping is ButtonMapping) {
-                        mapping.bindings.forEach {
-                            if (it is XboxButtonBinding && it.code == buttonCode) mapping.press()
-                        }
-                    }
-                }
-            }
-            return true
-        }
+class Controls(val controller: Controller?) {
+    class ButtonMapping(vararg val bindings: ButtonBinding) {
+        var down = false
+        var justPressed = false
 
-        override fun buttonUp(controller: Controller?, buttonCode: Int): Boolean {
-            if(controller == assigned) {
-                mappings.forEach { mapping ->
-                    if(mapping is ButtonMapping) {
-                        mapping.bindings.forEach {
-                            if(it is XboxButtonBinding && it.code == buttonCode) mapping.release()
-                        }
-                    }
-                }
-            }
-            return true
-        }
+        val pressed: Boolean get() = bindings.map { it.pressed() }.any { it }
 
-        override fun axisMoved(controller: Controller?, axisCode: Int, value: Float): Boolean {
-            if(controller == assigned) {
-                mappings.forEach { mapping ->
-                    if (mapping is AxisMapping) {
-                        mapping.bindings.forEach {
-                            when (it) {
-                                is XboxAxisBinding -> if (it.code == axisCode) {
-                                    mapping.move(if(FloatMath.abs(value) <= it.deadZone) 0f else (if(it.flip) -value else value))
-                                }
-                            }
-                        }
-                    }
+        fun update() {
+            justPressed = false
+            if(pressed) {
+                if(!down) {
+                    justPressed = true
                 }
+                down = true
+            } else {
+                down = false
             }
-            return true
         }
     }
 
-    val inputAdapter = object : InputAdapter() {
-        override fun keyDown(keycode: Int): Boolean {
-            mappings.forEach { mapping ->
-                if (mapping is ButtonMapping) {
-                    mapping.bindings.forEach {
-                        if (it is KeyboardButtonBinding && it.code == keycode) mapping.press()
-                    }
-                }
-                if(mapping is AxisMapping) {
-                    mapping.bindings.forEach {
-                        if (it is KeyboardAxisBinding && it.positiveCode == keycode) mapping.move(1f)
-                        if (it is KeyboardAxisBinding && it.negativeCode == keycode) mapping.move(-1f)
-                    }
-                }
-            }
-            return true
-        }
+    class AxisMapping(vararg val bindings: AxisBinding) {
+        val value: Float get() = bindings.map { it.value() }.maxBy(Float::abs) ?: 0f
+    }
 
-        override fun keyUp(keycode: Int): Boolean {
-            mappings.forEach { mapping ->
-                if (mapping is ButtonMapping) {
-                    mapping.bindings.forEach {
-                        if (it is KeyboardButtonBinding && it.code == keycode) mapping.release()
-                    }
-                }
-                if(mapping is AxisMapping) {
-                    mapping.bindings.forEach {
-                        if (it is KeyboardAxisBinding && (it.negativeCode == keycode || it.positiveCode == keycode)) {
-                            if(Gdx.input.isKeyPressed(it.negativeCode)) mapping.move(-1f)
-                            else if(Gdx.input.isKeyPressed(it.positiveCode)) mapping.move(1f)
-                            else mapping.move(0f)
-                        }
-                    }
-                }
-            }
-            return true
+    interface ButtonBinding {
+        fun pressed(): Boolean
+    }
+
+    interface AxisBinding {
+        fun value(): Float
+    }
+
+    inner class XboxButtonBinding(val code: Int) : ButtonBinding {
+        override fun pressed() = controller?.getButton(code) ?: false
+    }
+
+    inner class KeyboardButtonBinding(val code: Int) : ButtonBinding {
+        override fun pressed() = Gdx.input.isKeyPressed(code)
+    }
+
+    inner class XboxAxisBinding(val code: Int, val deadZone: Float, val flip: Boolean) : AxisBinding {
+        override fun value(): Float {
+            val axis = controller?.getAxis(code) ?: 0f
+            return if(FloatMath.abs(axis) <= deadZone) 0f else (if(flip) -axis else axis)
         }
     }
 
-    init {
-        assigned?.addListener(controllerAdapter)
+    inner class KeyboardAxisBinding(val negativeCode: Int, val positiveCode: Int) : AxisBinding {
+        override fun value(): Float {
+            var sum = 0f
+            if(Gdx.input.isKeyPressed(negativeCode)) sum -= 1f
+            if(Gdx.input.isKeyPressed(positiveCode)) sum += 1f
+            return sum
+        }
+    }
+
+    fun update() {
+        buttonMappings.forEach(ButtonMapping::update)
+    }
+
+    private fun xB(code: Int) = XboxButtonBinding(code)
+    private fun kB(code: Int) = KeyboardButtonBinding(code)
+    private fun xA(code: Int, deadZone: Float=0f, flip: Boolean = false) = XboxAxisBinding(code, deadZone, flip)
+    private fun kA(negativeCode: Int, positiveCode: Int) = KeyboardAxisBinding(negativeCode, positiveCode)
+
+    private val jumpMapping = ButtonMapping(        xB(Xbox.A),                                     kB(Input.Keys.SPACE))
+    private val attackMapping = ButtonMapping(      xB(Xbox.X),                                     kB(Input.Keys.C))
+    internal val optionsMapping = ButtonMapping(     xB(Xbox.Y),                                     kB(Input.Keys.D))
+    private val diveMapping = ButtonMapping(        xB(Xbox.B),                                     kB(Input.Keys.V))
+    private val nextMapping = ButtonMapping(        xB(Xbox.R_BUMPER),                              kB(Input.Keys.F))
+    private val previousMapping = ButtonMapping(    xB(Xbox.L_BUMPER),                              kB(Input.Keys.S))
+
+    private val moveXMapping = AxisMapping(         xA(Xbox.L_STICK_HORIZONTAL_AXIS),               kA(Input.Keys.LEFT, Input.Keys.RIGHT))
+    private val moveYMapping = AxisMapping(         xA(Xbox.L_STICK_VERTICAL_AXIS, flip=true),      kA(Input.Keys.DOWN, Input.Keys.UP))
+
+    private val rotateXMapping = AxisMapping(       xA(Xbox.R_STICK_HORIZONTAL_AXIS))
+    private val rotateYMapping = AxisMapping(       xA(Xbox.R_STICK_VERTICAL_AXIS, flip=true))
+
+    private val forwardMapping = AxisMapping(       xA(Xbox.R_TRIGGER))
+    private val backMapping = AxisMapping(          xA(Xbox.L_TRIGGER))
+
+    val buttonMappings = listOf(jumpMapping, attackMapping, optionsMapping, diveMapping, nextMapping, previousMapping)
+
+    val jumpPressed: Boolean get() = jumpMapping.pressed
+    val attackPressed: Boolean get() = attackMapping.pressed
+    val optionsPressed: Boolean get() = optionsMapping.pressed
+    val divePressed: Boolean get() = diveMapping.pressed
+    val nextPressed: Boolean get() = nextMapping.pressed
+    val previousPressed: Boolean get() = previousMapping.pressed
+
+    val jumpJustPressed: Boolean get() = jumpMapping.justPressed
+    val attackJustPressed: Boolean get() = attackMapping.justPressed
+    val optionsJustPressed: Boolean get() = optionsMapping.justPressed
+    val diveJustPressed: Boolean get() = diveMapping.justPressed
+    val nextJustPressed: Boolean get() = nextMapping.justPressed
+    val previousJustPressed: Boolean get() = previousMapping.justPressed
+
+    val moveX: Float get() = moveXMapping.value
+    val moveY: Float get() = moveYMapping.value
+    val moveV: Vector2 get() = V2(moveX, moveY)
+    val rotateX: Float get() = rotateXMapping.value
+    val rotateY: Float get() = rotateYMapping.value
+    val rotate: Vector2 get() = V2(rotateX, rotateY)
+    val forward: Float get() = (forwardMapping.value + 1f) / 2f
+    val back: Float get() = (backMapping.value + 1f) / 2f
+
+    companion object {
+        object Xbox {
+            val A = 11
+            val B = 12
+            val X = 13
+            val Y = 14
+            val GUIDE = 0
+            val L_BUMPER = 8
+            val R_BUMPER = 9
+            val BACK = 5
+            val START = 4
+            val DPAD_UP = 0
+            val DPAD_DOWN = 1
+            val DPAD_LEFT = 2
+            val DPAD_RIGHT = 3
+
+            val L_TRIGGER = 4
+            val R_TRIGGER = 5
+            val L_STICK_VERTICAL_AXIS = 1
+            val L_STICK_HORIZONTAL_AXIS = 0
+            val R_STICK_VERTICAL_AXIS = 3
+            val R_STICK_HORIZONTAL_AXIS = 2
+        }
     }
 }
-
-fun xB(code: Int): ButtonBinding {
-    return XboxButtonBinding(code)
-}
-fun kB(code: Int): ButtonBinding {
-    return KeyboardButtonBinding(code)
-}
-fun xA(code: Int, deadZone: Float=0f, flip: Boolean = false): AxisBinding {
-    return XboxAxisBinding(code, deadZone, flip)
-}
-fun kA(negativeCode: Int, positiveCode: Int): AxisBinding {
-    return KeyboardAxisBinding(negativeCode, positiveCode)
-}
-
-object Xbox {
-    val A = 11
-    val B = 12
-    val X = 13
-    val Y = 14
-    val L_BUMPER = 8
-    val R_BUMPER = 9
-
-    val L_TRIGGER = 4
-    val R_TRIGGER = 5
-    val L_STICK_VERTICAL_AXIS = 1
-    val L_STICK_HORIZONTAL_AXIS = 0
-    val R_STICK_VERTICAL_AXIS = 3
-    val R_STICK_HORIZONTAL_AXIS = 2
-
-    val GUIDE = 0
-    val BACK = 5
-    val START = 4
-    val DPAD_UP = 0
-    val DPAD_DOWN = 1
-    val DPAD_LEFT = 2
-    val DPAD_RIGHT = 3
-}
-
-interface Mapping
-class ButtonMapping(val onPress: () -> Unit,
-                    val onRelease: () -> Unit,
-                    vararg val bindings: ButtonBinding) : Mapping {
-    fun press() { onPress() }
-    fun release() { onRelease() }
-}
-class AxisMapping(val onMove: (Float) -> Unit,
-                  vararg val bindings: AxisBinding) : Mapping {
-    fun move(value: Float) { onMove(value) }
-}
-
-interface ButtonBinding
-interface AxisBinding
-
-private class XboxButtonBinding(val code: Int) : ButtonBinding
-private class KeyboardButtonBinding(val code: Int) : ButtonBinding
-
-private class XboxAxisBinding(val code: Int,
-                              val deadZone: Float,
-                              val flip: Boolean) : AxisBinding
-
-private class KeyboardAxisBinding(val negativeCode: Int,
-                                  val positiveCode: Int) : AxisBinding

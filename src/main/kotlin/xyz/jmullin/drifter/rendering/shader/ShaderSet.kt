@@ -38,7 +38,7 @@ open class ShaderSet(private val fragmentShaderName: String, private val vertexS
         compile()
     }
 
-    /**
+    /*
      * Compile the shader program from the specified source.
      */
     private fun compile() {

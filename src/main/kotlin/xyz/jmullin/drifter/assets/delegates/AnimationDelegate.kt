@@ -21,16 +21,13 @@ class AnimationDelegate(assetName: String?, assets: DrifterAssets) : AssetDelega
                     "At least one TextureAtlas is required to load Sprites.")
         }
 
+        val regex = "${safeAssetName()}(\\d+)".toRegex()
         return assets.primaryAtlas?.let { atlas ->
             val regionNames = atlas.regions?.map { it.name } ?: throw DrifterAssetsException("No regions for texture atlas!")
-            val frames = regionNames.map { name ->
-                val matches = "(.*)(\\d+)".toRegex().matchEntire(name)
-                if(name.startsWith(safeAssetName())) {
-                    matches?.groupValues?.getOrElse(2, { null })?.toInt()
-                } else {
-                    null
-                }
-            }.filterNotNull().sorted()
+            val frames = regionNames.mapNotNull { name ->
+                val matches = regex.matchEntire(name)
+                matches?.groupValues?.getOrElse(1) { null }?.toInt()
+            }.sorted()
             Animation(frames.map { atlas.createSprite(safeAssetName() + it) })
         } ?: throw DrifterAssetsException("Failed to load sprite '${safeAssetName()}.' Is the sprite present in the texture atlas?")
     }

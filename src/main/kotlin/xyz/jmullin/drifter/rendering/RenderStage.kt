@@ -48,9 +48,15 @@ abstract class RenderStage(val tag: String, val shader: ShaderSet = Shaders.defa
 abstract class BufferStage(tag: String, shader: ShaderSet = Shaders.default) : RenderStage(tag, shader) {
     var sources = listOf<BufferStage>()
     var fill = false
+    var clear = true
 
     fun attachFrom(vararg bufferStage: BufferStage): BufferStage {
         bufferStage.forEach { sources += it }
+        return this
+    }
+
+    fun attachSelf(): BufferStage {
+        sources += this
         return this
     }
 
@@ -95,6 +101,14 @@ class SimpleBufferStage(tag: String,
         }
     }
 
+    override fun textures() = listOf(tag to texture)
+}
+
+class FixedStage(tag: String, val texture: Texture) : BufferStage(tag) {
+    override fun begin() {}
+    override fun end() {}
+
+    override val targets: List<TargetBuffer> get() = emptyList()
     override fun textures() = listOf(tag to texture)
 }
 
@@ -158,7 +172,7 @@ class MultiTargetBufferStage(tag: String,
     override fun textures() = targets.zip(textures).map { it.first.tag to it.second }
 }
 
-class BlitStage(tag: String, val sources: List<BufferStage>, shader: ShaderSet = Shaders.default) : RenderStage(tag, shader) {
+class BlitStage(tag: String, val sources: List<BufferStage>, shader: ShaderSet = Shaders.default, val blitOp: ((SpriteBatch) -> Unit)? = null) : RenderStage(tag, shader) {
     override fun dependencies() = sources
 
     override fun begin() {}
