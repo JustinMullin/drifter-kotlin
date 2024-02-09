@@ -26,14 +26,27 @@ class FPSDisplay(val font: BitmapFont,
                  val color: Color = Color.YELLOW,
                  val backgroundColor: Color = Color.CLEAR,
                  val align: Vector2 = V2(0, 1),
+                 val textAlign: Vector2 = V2(-1, -1),
                  val attachedStage: RenderStage) : Entity2D() {
 
     private val layout = GlyphLayout()
+
+    private var frame = 0f
 
     override fun create(container: EntityContainer2D) {
         if(!drifter().devMode) remove()
 
         super.create(container)
+    }
+
+    override fun update(delta: Float) {
+        frame += delta
+        if(frame >= 1f) {
+            frame -= 1f
+//            println("FPS: ${gameFps()}")
+        }
+
+        super.update(delta)
     }
 
     override fun render(stage: RenderStage) {
@@ -46,7 +59,7 @@ class FPSDisplay(val font: BitmapFont,
         stage.draw(attachedStage) {
             Draw.fill.color = backgroundColor
 //            sprite(Draw.fill, v - V2(5f), textBounds + V2(10f))
-            string("FPS: ${gameFps()}", v, font, -align)
+            string("FPS: ${gameFps()}", v, font, textAlign)
         }
     }
 }

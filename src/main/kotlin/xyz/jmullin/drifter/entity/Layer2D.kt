@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import xyz.jmullin.drifter.extensions.*
 import xyz.jmullin.drifter.rendering.*
-import java.nio.FloatBuffer
 
 /**
  * 2-dimensional layer implementation.  Contains Entity2Ds.
@@ -35,9 +34,17 @@ open class Layer2D(override val index: Int,
     override var children = emptyList<Entity2D>()
 
     /**
-     * Camera used to render the world.
+     * Camera used to render the world orthographically.
      */
     var camera = OrthographicCamera(viewportSize.x, viewportSize.y)
+
+    /**
+     * Camera used to render the world in perspective.
+     */
+    var perspectiveCamera = PerspectiveCamera(90f, viewportSize.x, viewportSize.y).apply {
+        near = 0.1f
+        far = 100f
+    }
 
     // TODO: these need to be cleaned up
     var cameraPos = V2(0f)
@@ -78,19 +85,28 @@ open class Layer2D(override val index: Int,
     }
 
     private fun renderBlitStage(stage: BlitStage) {
+        camera.setToOrtho(false, viewportSize.x, viewportSize.y)
+        camera.view.setToRotation(V3(0f, 0f, 1f), cameraRot)
+        camera.position.set(V3(gameSize()/2f, 0f))
+        camera.zoom = 1f
+        viewport?.setWorldSize(viewportSize.x, viewportSize.y)
+        camera.update()
+        stage.batch.projectionMatrix = camera.combined
         stage.batch.shader = stage.shader.program
         stage.batch.begin()
         stage.shader.update()
+        stage.begin()
 
-        stage.sources.flatMap { it.textures() }
-            .forEachIndexed { i, (tag, texture) ->
+        stage.sources.flatMap { it.textures() }.forEachIndexed { i, (tag, texture) ->
             val unit = stage.sources.size - i
             texture.bind(unit)
             stage.shader.program?.setUniformi(tag, unit)
         }
         Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0)
 
-        stage.batch.fill(gameBounds(), Color.WHITE)
+        stage.blitOp?.invoke(stage.batch) ?: {
+            stage.batch.fill(V2(0f), gameSize(), Color.WHITE)
+        }()
 
         stage.batch.end()
     }
@@ -98,10 +114,11 @@ open class Layer2D(override val index: Int,
     private fun pingPongBufferStage(stage: PingPongBufferStage) {
         stage.ping = false
 
-        renderBufferStage(stage, listOf("source" to stage.initialSource()), { it.setUniformi("ping", 0) })
+        val sourceTextures = stage.sources.flatMap { it.textures() }
+        renderBufferStage(stage, sourceTextures + listOf("source" to stage.initialSource())) { it.setUniformi("ping", 0); it.setUniformi("pingPongStep", 0) }
         (0 until stage.iterations).forEachIndexed { i, _ ->
             stage.pong()
-            renderBufferStage(stage, listOf("source" to stage.inactiveTexture), { it.setUniformi("ping", (i+1) % 2) })
+            renderBufferStage(stage, sourceTextures + listOf("source" to stage.inactiveTexture)) { it.setUniformi("ping", (i+1) % 2); it.setUniformi("pingPongStep", i+1) }
         }
     }
 
@@ -117,8 +134,10 @@ open class Layer2D(override val index: Int,
         stage.batch.projectionMatrix = camera.combined
         stage.begin()
 
-        stage.targets.forEachIndexed { i, target ->
-            Gdx.gl30.glClearBufferfv(GL30.GL_COLOR, i, target.backgroundColor.toBuffer())
+        if(stage.clear) {
+            stage.targets.forEachIndexed { i, target ->
+                Gdx.gl30.glClearBufferfv(GL30.GL_COLOR, i, target.backgroundColor.toBuffer())
+            }
         }
         Gdx.gl20.glEnable(GL20.GL_BLEND)
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
@@ -150,13 +169,24 @@ open class Layer2D(override val index: Int,
     }
 
     fun renderDrawStage(stage: DrawStage) {
-        camera.position.set(V3(cameraPos, 0f))
-        camera.update()
-        camera.rotate(cameraRot - actualCameraRot)
-        actualCameraRot = cameraRot
-        camera.zoom = cameraZoom
+        if (stage.perspective) {
+//            perspectiveCamera.position.set(V3(cameraPos, -0.075f/cameraZoom))
+            perspectiveCamera.position.set(V3(cameraPos, -0.05f/cameraZoom))
+            perspectiveCamera.lookAt(V3(cameraPos, 0f))
+            perspectiveCamera.up.set(V3(0f, 1f, 0f).rotate(V3(0f, 0f, 1f), cameraRot))
+            perspectiveCamera.update()
+            actualCameraRot = cameraRot
+            stage.batch.projectionMatrix = perspectiveCamera.combined
+        } else {
+            camera.setToOrtho(false, viewportSize.x, viewportSize.y)
+            camera.position.set(V3(cameraPos, 0f))
+            camera.update()
+            camera.rotate(cameraRot - actualCameraRot)
+            actualCameraRot = cameraRot
+            camera.zoom = cameraZoom
+            stage.batch.projectionMatrix = camera.combined
+        }
 
-        stage.batch.projectionMatrix = camera.combined
         stage.batch.shader = stage.shader.program
         stage.batch.begin()
         stage.shader.update()
@@ -185,7 +215,12 @@ open class Layer2D(override val index: Int,
     }
 
     override fun resize(newSize: Vector2) {
+        stages.forEach { it.resize(newSize) }
+        viewportSize.set(newSize.cpy())
         viewport?.update(newSize.x.toInt(), newSize.y.toInt(), autoCenter)
+        camera.setToOrtho(false, viewportSize.x, viewportSize.y)
+        perspectiveCamera.viewportWidth = viewportSize.x
+        perspectiveCamera.viewportHeight = viewportSize.y
     }
 
     override fun touchUp(v: Vector2, pointer: Int, button: Int): Boolean {
@@ -200,6 +235,16 @@ open class Layer2D(override val index: Int,
             super.mouseMoved(localV)
             children.find { it.containsPoint(localV) } != null
         }
+    }
+
+    override fun keyDown(keycode: Int): Boolean {
+        children.forEach { it.keyDown(keycode) }
+        return super.keyDown(keycode)
+    }
+
+    override fun keyTyped(character: Char): Boolean {
+        children.forEach { it.keyTyped(character) }
+        return super.keyTyped(character)
     }
 
     /**

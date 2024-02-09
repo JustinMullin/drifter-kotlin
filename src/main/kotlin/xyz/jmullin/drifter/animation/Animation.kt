@@ -7,6 +7,12 @@ import xyz.jmullin.drifter.rendering.Draw
  * Convenience collection of a set of sprites for use in sequential animation.
  */
 data class Animation(val sprites: List<Sprite>) {
+    init {
+        assert(sprites.isNotEmpty()) { "No sprites associated with animation!" }
+    }
+
+    val frameSize by lazy { 1f / sprites.size.toFloat() }
+
     /**
      * Retrieves the proper sprite by alpha representing progress through the animation.
      *
@@ -15,5 +21,9 @@ data class Animation(val sprites: List<Sprite>) {
      */
     fun frame(a: Float): Sprite {
         return sprites.getOrNull(Math.min(sprites.size-1f, a*sprites.size).toInt() % sprites.size) ?: sprites.last()
+    }
+
+    fun index(a: Float): Int {
+        return Math.min(sprites.size-1f, a*sprites.size).toInt() % sprites.size
     }
 }

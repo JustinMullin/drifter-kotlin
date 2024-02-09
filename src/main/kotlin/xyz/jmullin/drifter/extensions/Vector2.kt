@@ -1,9 +1,11 @@
 package xyz.jmullin.drifter.extensions
 
 import com.badlogic.gdx.math.Matrix3
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import xyz.jmullin.drifter.geometry.VectorHex
+import kotlin.math.abs
 import xyz.jmullin.drifter.extensions.FloatMath.abs as mAbs
 import xyz.jmullin.drifter.extensions.FloatMath.ceil as mCeil
 import xyz.jmullin.drifter.extensions.FloatMath.floor as mFloor
@@ -55,6 +57,8 @@ val Right = V2(1f, 0f)
 val Up = V2(0f, 1f)
 val Down = V2(0f, -1f)
 
+val Vector2.aspectRatio get() = x / y
+
 fun nameDir(v: Vector2) = if(v == Up) "Up" else if(v == Down) "Down" else if(v == Right) "Right" else if(v == Left) "Left" else v.toString()
 
 fun Vector2.abs() = V2(mAbs(x), mAbs(y))
@@ -62,8 +66,18 @@ fun Vector2.inverse() = (this * -1f).fixZeroes()
 fun Vector2.flipX() = (this * V2(-1, 1)).fixZeroes()
 fun Vector2.flipY() = (this * V2(1, -1)).fixZeroes()
 
+fun Vector2.clamp(absoluteBounds: Vector2) = V2(x.clamp(-absoluteBounds.x, absoluteBounds.x), y.clamp(-absoluteBounds.y, absoluteBounds.y))
+fun Vector2.clamp(lowerBounds: Vector2, upperBounds: Vector2) = V2(x.clamp(lowerBounds.x, upperBounds.x), y.clamp(lowerBounds.y, upperBounds.y))
+
+fun Vector2.constrainTo(constraint: Rectangle) = V2(
+    x.clamp(constraint.x, constraint.x+constraint.width),
+    y.clamp(constraint.y, constraint.y+constraint.height)
+)
+
 fun Vector2.center(o: Vector2) = this + o/2f
 fun Vector2.midpoint(o: Vector2) = V2((x+o.x)*0.5f, (y+o.y)*0.5f)
+
+fun Vector2.reflect(normal: Vector2) = this - normal * dot(normal) * 2f
 
 fun Vector2.min(o: Vector2) = V2(mMin(x, o.x), mMin(y, o.y))
 fun Vector2.max(o: Vector2) = V2(mMax(x, o.x), mMax(y, o.y))
@@ -71,8 +85,9 @@ fun Vector2.floor() = V2(mFloor(x), mFloor(y)).fixZeroes()
 fun Vector2.ceil() = V2(mCeil(x), mCeil(y)).fixZeroes()
 fun Vector2.round() = V2(mRound(x), mRound(y)).fixZeroes()
 
-fun Vector2.neighbors() = (V2(-1, -1)..V2(1, 1)).filter { !it.isZero }.map { this + it }
+fun Vector2.neighbors(scale: Float=1f) = (V2(-1, -1)..V2(1, 1)).filter { !it.isZero }.map { this + it * scale }
 fun Vector2.orthogonal() = (V2(-1, -1)..V2(1, 1)).filter { it.len() == 1f }.map { this + it }
+fun Vector2.diagonal() = (V2(-1, -1)..V2(1, 1)).filter { (abs(it.x) + abs(it.y) == 2f) }.map { this + it }
 
 fun Vector2.snap(scale: Float=1f) = V2(mFloor(x/scale), mFloor(y/scale)) * scale
 fun Vector2.snap(scale: Vector2) = (this / scale).floor() * scale
@@ -91,7 +106,19 @@ fun Vector2.fixZeroes() = V2(if(x == 0.0f) 0.0f else x, if(y == 0.0f) 0.0f else 
 val Vector2.minComponent: Float get() = mMin(mAbs(x), mAbs(y))
 val Vector2.maxComponent: Float get() = mMax(mAbs(x), mAbs(y))
 
+val Vector2.minComponentVector: Vector2 get() = V2(mMin(mAbs(x), mAbs(y)))
+val Vector2.maxComponentVector: Vector2 get() = V2(mMax(mAbs(x), mAbs(y)))
+
 fun Vector2.distanceTo(b: Vector2) = (b - this).len()
+
+fun Vector2.closestPointOnSegment(a: Vector2, b: Vector2): Vector2 {
+    val x21 = b.x - a.x
+    val y21 = b.y - a.y
+    val x31 = x - a.x
+    val y31 = y - a.y
+    val t = ((x31 * x21 + y31 * y21) / (x21 * x21 + y21 * y21)).clamp(0f, 1f)
+    return a + (b-a) * t
+}
 
 fun Vector2.manhattanTo(b: Vector2): Float {
     val difference = (b-this).abs()
@@ -105,6 +132,7 @@ fun Vector2.toHex(size: Vector2) = (VectorHex(x * (2/3f) / size.x, (-x / 3f + 3f
 fun Vector2.list() = listOf(x, y)
 
 val Vector2.xx: Vector2 get() = V2(x, x)
+val Vector2.yx: Vector2 get() = V2(y, x)
 val Vector2.yy: Vector2 get() = V2(y, y)
 val Vector2.xo: Vector2 get() = V2(x, 0)
 val Vector2.yo: Vector2 get() = V2(y, 0)

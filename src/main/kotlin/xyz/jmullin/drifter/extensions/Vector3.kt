@@ -16,6 +16,7 @@ fun V3(v: Vector2, z: Float) = Vector3(v.x, v.y, z)
 fun V3(x: Float, v: Vector2) = Vector3(x, v.x, v.y)
 fun V3(x: Float, y: Float, z: Float) = Vector3(x, y, z)
 fun V3(x: Int, y: Int, z: Int) = Vector3(x.toFloat(), y.toFloat(), z.toFloat())
+fun V3(l: List<Number>) = Vector3(l[0].toFloat(), l[1].toFloat(), l[2].toFloat())
 
 val Vector3.xI: Int get() = x.toInt()
 val Vector3.yI: Int get() = y.toInt()
@@ -36,6 +37,21 @@ operator fun Vector3.times(m: Matrix4) = cpy().mul(m)
 operator fun Vector3.div(o: Vector3) = cpy().scl(1f/o.x, 1f/o.y, 1f/o.z)
 operator fun Vector3.div(n: Float) = cpy().scl(1f/n, 1f/n, 1f/n)
 operator fun Vector3.unaryMinus() = inverse()
+
+operator fun Vector3.rangeTo(v: Vector3): List<Vector3> {
+    return (zI..v.zI).flatMap { z ->
+        (yI..v.yI).flatMap { y ->
+            (xI..v.xI).map { x ->
+                listOf(x, y, z)
+            }
+        }
+    }.map(::V3)
+}
+infix fun Vector3.until(v: Vector3) = this.rangeTo(v - V3(1f))
+
+fun Vector3.neighbors() = (V3(-1, -1, -1)..V3(1, 1, 1)).filter { it.len() != 0f }.map { this + it }
+fun Vector3.orthogonal() = (V3(-1, -1, -1)..V3(1, 1, 1)).filter { it.len() == 1f }.map { this + it }
+fun Vector3.diagonal() = (V3(-1, -1, -1)..V3(1, 1, 1)).filter { (kotlin.math.abs(it.x) + kotlin.math.abs(it.y) == 2f) }.map { this + it }
 
 fun Vector3.abs() = V3(mAbs(x), mAbs(y), mAbs(z))
 fun Vector3.inverse() = (this * -1f).fixZeroes()

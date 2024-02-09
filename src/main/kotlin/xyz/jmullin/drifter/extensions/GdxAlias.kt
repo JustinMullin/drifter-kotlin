@@ -1,6 +1,7 @@
 package xyz.jmullin.drifter.extensions
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.math.Vector2
 import xyz.jmullin.drifter.application.DrifterGame
 
 /**
@@ -12,6 +13,7 @@ fun mouseY() = gameH() - Gdx.input.y
 fun mouseV() = V2(mouseX(), mouseY())
 fun rawMouseV() = V2(Gdx.input.x, Gdx.input.y)
 fun mouseVelocity() = V2(Gdx.input.deltaX, Gdx.input.deltaY)
+fun moveMouse(v: Vector2) = Gdx.input.setCursorPosition(v.xI, v.yI)
 fun gameW() = Gdx.graphics.width
 fun gameH() = Gdx.graphics.height
 fun gameWRaw() = Gdx.graphics.backBufferWidth

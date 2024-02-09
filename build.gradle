@@ -1,12 +1,10 @@
-version = "0.3-SNAPSHOT"
-group = "xyz.jmullin.drifter"
-
 buildscript {
     ext {
-        kotlinVersion = '1.3.10'
-        gdxVersion = '1.9.9'
+        kotlinVersion = '1.4.0'
+        gdxVersion = '1.9.11'
     }
     repositories {
+        mavenLocal()
         mavenCentral()
         jcenter()
     }
@@ -16,9 +14,12 @@ buildscript {
     }
 }
 
-apply plugin: 'kotlin'
-apply plugin: 'maven'
-apply plugin: 'maven-publish'
+apply plugin: "org.jetbrains.kotlin.jvm"
+apply plugin: "maven"
+apply plugin: "maven-publish"
+
+version = "0.3-SNAPSHOT"
+group = "xyz.jmullin.drifter"
 
 repositories {
     mavenCentral()
@@ -41,17 +42,24 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
     compile "com.badlogicgames.gdx:gdx:$gdxVersion"
-    compile "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
     compile "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
+    compile "com.badlogicgames.gdx:gdx-controllers-lwjgl3:$gdxVersion"
     compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-}
-
-wrapper {
-    gradleVersion = "4.3"
 }
 
 sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
 }
 
 apply from: 'install.gradle'

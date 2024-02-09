@@ -1,10 +1,12 @@
 package xyz.jmullin.drifter.entity
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import xyz.jmullin.drifter.animation.Trigger
 import xyz.jmullin.drifter.extensions.V2
+import xyz.jmullin.drifter.extensions.rawMouseV
 import xyz.jmullin.drifter.rendering.RenderStage
 import xyz.jmullin.drifter.rendering.shader.ShaderSet
 import xyz.jmullin.drifter.rendering.shader.Shaders
@@ -55,8 +57,22 @@ open class Entity2D : EntityContainer2D, Entity() {
     val y: Float get() = position.y
     val width: Float get() = size.x
     val height: Float get() = size.y
-    val _bounds = Rectangle()
-    open val bounds: Rectangle get() = _bounds.set(x, y, width, height)
+
+    private val _bounds = Rectangle()
+    open var bounds: Rectangle get() = _bounds.set(x, y, width, height)
+        set(value) {
+            position.set(value.x, value.y)
+            size.set(value.width, value.height)
+            _bounds.set(x, y, width, height)
+        }
+
+    fun layout(position: Vector2, size: Vector2) {
+        this.position.set(position)
+        this.size.set(size)
+        layoutChildren()
+    }
+
+    open fun layoutChildren() {}
 
     /**
      * Called by the parent container when this entity is added to it.  Override to perform some
@@ -127,14 +143,24 @@ open class Entity2D : EntityContainer2D, Entity() {
     fun unproject(v: Vector2) = layer()?.viewport?.unproject(v.cpy()) ?: V2(0, 0)
 
     /**
+     * Unprojects a world coordinate from the point of view of the parent layer into a screen coordinate.
+     *
+     * @param v Point to project.
+     * @return The corresponding screen space coordinate.
+     */
+    fun project(v: Vector2) = layer()?.viewport?.project(v.cpy()) ?: V2(0, 0)
+
+    fun mousePosition() = unproject(rawMouseV())
+
+    /**
      * Executes a rendering block with the specified shader applied.
      *
      * // TODO  Figure out a better way to handle shader switches efficiently, perhaps in tandem
      * // TODO  with sorting to order entities at a single depth by shader.
      */
-    fun withShader(shader: ShaderSet, batch: SpriteBatch, block: () -> Unit) {
+    fun withShader(shader: ShaderSet, batch: SpriteBatch, block: (ShaderProgram) -> Unit) {
         Shaders.switch(shader, batch)
-        block()
+        block(shader.program!!)
         Shaders.switch(Shaders.default, batch)
     }
 

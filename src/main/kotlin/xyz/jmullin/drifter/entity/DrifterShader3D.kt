@@ -21,6 +21,9 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import xyz.jmullin.drifter.debug.log
 import xyz.jmullin.drifter.extensions.V3
+import xyz.jmullin.drifter.extensions.drifter
+import xyz.jmullin.drifter.rendering.shader.ShaderUniform
+import java.time.Clock.tick
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader.Setter as SetterGDX
 
 /**
@@ -38,6 +41,11 @@ open class DrifterShader3D(var renderable: Renderable,
     var depthRangeNear = 0f
     var depthRangeFar = 1f
     var depthMask = true
+
+    /**
+     * System ms time at which this shader was last compiled.
+     */
+    private var lastCompileTime = 0L
 
     init {
         defaultShaders()
@@ -80,7 +88,41 @@ open class DrifterShader3D(var renderable: Renderable,
             renderable)
     }
 
+    private val vert = Gdx.files.internal("shader/$vertexShader.vert")!!
+    private val frag = Gdx.files.internal("shader/$fragmentShader.frag")!!
+
+    /*
+     * Compile the shader program from the specified source.
+     */
+    private fun compile() {
+//        dispose()
+//        defaultShaders()
+        program = ShaderProgram(vert, frag).apply {
+            if(isCompiled) {
+                log("Shader ($frag, $vert) compiled successfully.")
+            } else {
+                log("Shader ($frag, $vert) failed to compile:\n${log.split("\n").joinToString("\n") { "\t" + it }}")
+            }
+        }
+//        init(program, renderable)
+        lastCompileTime = System.currentTimeMillis()
+    }
+
+    /**
+     * Reload the shader from source if the files have been changed since compilation.
+     */
+    private fun refresh() {
+        if (vert.lastModified() > lastCompileTime || frag.lastModified() > lastCompileTime) {
+            compile()
+            log("Reloaded shader $fragmentShader / $vertexShader.")
+        }
+    }
+
     override fun render(renderable: Renderable) {
+        if(drifter().devMode) {
+            refresh()
+        }
+
         context.setBlending(blendingEnabled, blendSource, blendDest)
 
         context.setCullFace(cullFace)

@@ -1,6 +1,7 @@
 package xyz.jmullin.drifter.extensions
 
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.BufferUtils
 import java.nio.FloatBuffer
 
@@ -10,6 +11,7 @@ import java.nio.FloatBuffer
 
 fun C(r: Float, g: Float, b: Float) = Color(r, g, b, 1f)
 fun C(r: Float, g: Float, b: Float, a: Float) = Color(r, g, b, a)
+fun C(a: Vector2, b: Vector2) = Color(a.x, a.y, b.x, b.y)
 fun C(c: Color, a: Float) = Color(c.r, c.g, c.b, a)
 fun C(i: Float) = Color(i, i, i, 1f)
 

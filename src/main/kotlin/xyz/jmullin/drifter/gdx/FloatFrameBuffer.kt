@@ -2,13 +2,14 @@ package xyz.jmullin.drifter.gdx
 
 import com.badlogic.gdx.Application.ApplicationType
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.Texture.TextureFilter
 import com.badlogic.gdx.graphics.Texture.TextureWrap
 import com.badlogic.gdx.graphics.glutils.FrameBuffer
 
 /** This is a [FrameBuffer] variant backed by a float texture.  */
-class FloatFrameBuffer(width: Int, height: Int, hasDepth: Boolean) : FrameBuffer(null, width, height, hasDepth) {
+class FloatFrameBuffer(width: Int, height: Int, hasDepth: Boolean) : FrameBuffer(Pixmap.Format.RGBA8888, width, height, hasDepth) {
 
     override fun createTexture(attachmentSpec: FrameBufferTextureAttachmentSpec?): Texture {
         val data = FloatTextureData(width, height)

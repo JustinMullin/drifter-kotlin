@@ -7,7 +7,7 @@ import xyz.jmullin.drifter.error.DrifterAssetsException
 class SpriteDelegate(assetName: String?, assets: DrifterAssets) : AssetDelegate<Sprite>(assetName, assets) {
     constructor(assets: DrifterAssets) : this(null, assets)
 
-    override fun path(name: String) = "font/$name.fnt"
+    override fun path(name: String) = ""
     override val type = Sprite::class.java
 
     override fun loadAsset() {

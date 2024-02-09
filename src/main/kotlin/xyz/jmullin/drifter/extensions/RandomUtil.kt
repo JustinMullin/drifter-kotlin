@@ -13,6 +13,12 @@ import java.util.*
  */
 var r = Random()
 
+fun <T> p(p: Number, a: T): T? = if (probability(p.toDouble())) a else null
+fun <T> p(p: Number, a: () -> T): T? = if (probability(p.toDouble())) a() else null
+fun <T> p(p: Number, a: () -> T, b: () -> T): T = if (probability(p.toDouble())) a() else b()
+fun <T> p(p: Number, a: T, b: () -> T): T = if (probability(p.toDouble())) a else b()
+fun <T> p(p: Number, a: () -> T, b: T): T = if (probability(p.toDouble())) a() else b
+fun <T> p(p: Number, a: T, b: T): T = if (probability(p.toDouble())) a else b
 fun probability(p: Double) = r.nextDouble() <= p
 fun probability(p: Float) = r.nextFloat() <= p
 fun rInt(n: Int) = r.nextInt(n)
@@ -20,6 +26,8 @@ fun rInt(n:Int, m:Int) = if(n == m) n else n+r.nextInt(m-n)
 fun rInt(r: ClosedRange<Int>) = rInt(r.start, r.endInclusive)
 fun rFloat(n: Float) = r.nextFloat()*n
 fun rFloat(n: Float, m: Float): Float = n+r.nextFloat()*(m-n)
+fun rFloat(r: ClosedRange<Float>) = rFloat(r.start, r.endInclusive)
+
 fun <T> rElement(s: Iterable<T>) = s.toList().let { it[rInt(it.size)] }
 fun <T> rElement(vararg s: T) = s.toList().let { it[rInt(it.size)] }
 fun <T> Iterable<T>.shuffle(): List<T> {
